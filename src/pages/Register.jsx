@@ -7,7 +7,7 @@ const Register = () => {
   const handleSubmit = async (values, actions) => {
     // Enviar los datos del formulario a la API para el registro
     try {
-      const response = await fetch('https://test-back-4kx4.onrender.com/api/v1/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,13 +57,24 @@ const Register = () => {
               {({ isSubmitting, status }) => (
                 <Form>
                   <div className="form my-3">
-                    <label htmlFor="nombre">Nombres Completos</label>
+                    <label htmlFor="nombre">Nombre</label>
                     <Field
                       type="text"
                       name="nombre"
                       className="form-control"
                       id="nombre"
                       placeholder="Ingresa tus nombres completos"
+                      required
+                    />
+                  </div>
+                  <div className="form my-3">
+                    <label htmlFor="apellido">Apellido</label>
+                    <Field
+                      type="text"
+                      name="apellido"
+                      className="form-control"
+                      id="apellido"
+                      placeholder="Ingresa tu apellido"
                       required
                     />
                   </div>
@@ -86,17 +97,6 @@ const Register = () => {
                       className="form-control"
                       id="password"
                       placeholder="*********"
-                      required
-                    />
-                  </div>
-                  <div className="form my-3">
-                    <label htmlFor="apellido">Apellido</label>
-                    <Field
-                      type="text"
-                      name="apellido"
-                      className="form-control"
-                      id="apellido"
-                      placeholder="Ingresa tu apellido"
                       required
                     />
                   </div>

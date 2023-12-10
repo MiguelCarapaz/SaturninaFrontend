@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Navbar2, Footer2 } from '../../components/usuario/usuario';
+import { Navbar3, Footer3 } from '../../components/administrador/administrador';
 import AuthContext from '../../context/AuthProvider';
 
-const Perfil = () => {
+const Perfil2 = () => {
   const { auth } = useContext(AuthContext);
   const [isEditMode, setIsEditMode] = useState(false);
   const [perfilData, setPerfilData] = useState(null); 
@@ -15,7 +15,7 @@ const Perfil = () => {
     const storedId = localStorage.getItem('id');
     console.log('Stored ID:', storedId);
 
-    fetch(`https://test-back-dev-nprj.3.us-1.fl0.io/api/v1/user/${storedId}`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
       headers: {
         Authorization: `Bearer ${auth.authToken}`,
       },
@@ -86,7 +86,7 @@ const Perfil = () => {
 
   return (
     <>
-      <Navbar2 />
+      <Navbar3 />
       <div className="container my-5 py-2">
         <div className="row">
           <div className="col-md-6">
@@ -195,9 +195,9 @@ const Perfil = () => {
           </div>
         </div>
       </div>
-      <Footer2 />
+      <Footer3 />
     </>
   );
 };
 
-export default Perfil;
+export default Perfil2;

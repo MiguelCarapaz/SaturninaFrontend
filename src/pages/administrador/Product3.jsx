@@ -3,30 +3,36 @@ import Skeleton from "react-loading-skeleton";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-import { Footer2, Navbar2 } from "../../components/usuario/usuario";
+import { Footer3, Navbar3 } from "../../components/administrador/administrador";
 
-const Product2 = () => {
+const Product3 = () => {
   const { id } = useParams();
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [categories, setCategories] = useState([]);
+
   const dispatch = useDispatch();
 
   const addProduct = (product) => {
-    dispatch(addCart({ ...product, nombre_producto: product.name }));
+    dispatch(addCart(product));
   };
 
   useEffect(() => {
     const getProduct = async () => {
       setLoading(true);
+      setLoading2(true);
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${id}`);
         const data = await response.json();
         setProduct(data.detail);
         setLoading(false);
+        setSimilarProducts(data.detail);
+        setLoading2(false);
       } catch (error) {
         console.error("Error fetching product:", error);
         setLoading(false);
+        setLoading2(false);
       }
     };
 
@@ -73,6 +79,7 @@ const Product2 = () => {
 
   const ShowProduct = () => {
     const categoryName = categories.find(cat => cat.id === product.category)?.name || "Desconocida";
+
     return (
       <>
         <div className="container my-5 py-2">
@@ -89,17 +96,8 @@ const Product2 = () => {
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
               <h1 className="display-5">{product.name}</h1>
-              <h3 className="display-6 my-4">${product.precio}</h3>
+              <h3 className="display-6  my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
-              <button
-                className="btn btn-outline-dark"
-                onClick={() => addProduct(product)}
-              >
-                Añadir al carrito
-              </button>
-              <Link to="/usuario/cart" className="btn btn-dark mx-3">
-                Ir al carrito
-              </Link>
             </div>
           </div>
         </div>
@@ -109,18 +107,17 @@ const Product2 = () => {
 
   return (
     <>
-      <Navbar2 />
+      <Navbar3 />
       <div className="container">
         <div className="row">{loading ? <Loading /> : <ShowProduct />}</div>
         <div className="row my-5 py-5">
           <div className="d-none d-md-block">
-            {/* Contenido adicional, si es necesario */}
           </div>
         </div>
       </div>
-      <Footer2 />
+      <Footer3 />
     </>
   );
 };
 
-export default Product2;
+export default Product3;

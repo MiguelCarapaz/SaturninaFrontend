@@ -1,69 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import * as actions from "../../redux/action/index";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const Products2 = () => {
+const Products3 = () => {
+  const navigate = useNavigate(); 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentCategory, setCurrentCategory] = useState("category:todos");
   const [categories, setCategories] = useState([]);
-  const dispatch = useDispatch();
 
-  const addProduct = (product) => {
-    if (product.id) {
-      dispatch(
-        actions.agregarAlCarrito({
-          ...product,
-          id_producto: product.id,
-          nombre_producto: product.name,
-        })
-      );
-    } else {
-      console.error('El objeto del producto no tiene la propiedad id:', product);
-    }
-  };
-  
+  let componentMounted = true;
   useEffect(() => {
-    let componentMounted = true;
-
-    const fetchData = async () => {
+    const fetchProducts = async () => {
+      setLoading(true);
       try {
-        const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
-        const productsResult = await productsResponse.json();
-
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
+        const result = await response.json();
         if (componentMounted) {
-          setData(productsResult.detail);
+          setData(result.detail);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
-      }
-
-      try {
-        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
-
-        if (categoriesResponse.ok) {
-          const categoriesData = await categoriesResponse.json();
-          setCategories([
-            { id: "category:todos", name: "Todos" },
-            ...categoriesData.detail,
-          ]);
-        } else {
-          console.error("Error fetching categories:", categoriesResponse.status);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-
-      if (componentMounted) {
         setLoading(false);
       }
     };
 
-    fetchData();
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
+        const result = await response.json();
+        setCategories([
+          { id: "category:todos", name: "Todos" },
+          ...result.detail,
+        ]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchProducts();
+    fetchCategories();
 
     return () => {
       componentMounted = false;
@@ -92,13 +70,49 @@ const Products2 = () => {
     setCurrentPage(pageNumber);
   };
 
+  const handleDelete = async (productId) => {
+    // Mostrar un mensaje de confirmación antes de eliminar el producto
+    const isConfirmed = window.confirm("¿Estás seguro de que deseas eliminar este producto?");
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${productId}`,  {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.ok) {
+        // Eliminar el producto localmente después de que se haya eliminado con éxito en el servidor
+        setData((prevData) => prevData.filter((product) => product.id !== productId));
+        console.log(`Producto con ID ${productId} eliminado con éxito.`);
+      } else {
+        const errorData = await response.json();
+        console.error(`Error al eliminar el producto con ID ${productId}: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error en la solicitud de eliminación:", error);
+    }
+  };
+
+  const handleUpdate = (productId) => {
+    console.log(`Actualizar producto con ID: ${productId}`);
+    navigate(`/admin/actualizarproducto/${productId}`);
+  };
+
   const ShowProducts = () => {
     const [searchInput, setSearchInput] = useState("");
 
     const filteredProducts = data.filter(
       (product) =>
-        (currentCategory === "category:todos" || product.category === currentCategory) &&
-        (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
+        (currentCategory === "category:todos" ||
+          product.category === currentCategory) &&
+        (!searchInput || product.name.toLowerCase().includes(searchInput.toLowerCase()))
     );
 
     const indexOfLastProduct = currentPage * 6;
@@ -123,18 +137,25 @@ const Products2 = () => {
           ))}
         </div>
 
-        <div className="text-center py-2 d-flex justify-content-end">
-          <input
-            type="text"
-            placeholder="Buscar productos 🔍"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
+        <div className="row">
+          <div className="col-md-6 col-sm-6 col-xs-12 col-12 py-2">
+            <Link to="/admin/nuevoproducto" className="btn btn-success">
+              Nuevo Producto
+            </Link>
+          </div>
+          <div className="col-md-6 col-sm-6 col-xs-12 col-12 py-2 text-md-end">
+            <input
+              type="text"
+              placeholder="Buscar productos 🔍"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="row">
           {currentProducts.map((product) => (
-            <ShowProductDetails key={product.id_producto} product={product} />
+            <ShowProductDetails key={product.id} product={product} />
           ))}
         </div>
 
@@ -193,7 +214,7 @@ const Products2 = () => {
     };
 
     return (
-      <div id={product.id_producto} key={product.id_producto} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+      <div id={product.id} key={product.id} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
         <div className="card text-center h-100" style={productCardStyle}>
           <img
             className="card-img-top p-3"
@@ -216,20 +237,15 @@ const Products2 = () => {
           </ul>
           <div className="card-body">
             <div className="buttons" style={buttonGroupStyle}>
-              <button
-                className="btn btn-dark m-1"
-                style={titleStyle}
-                onClick={() => addProduct(product)}
-              >
-                Añadir al carrito
-              </button>
-              <Link
-                to={"/usuario/product2/" + product.id_producto}
-                className="btn btn-outline-dark m-1"
-                style={titleStyle}
-              >
-                Ver detalles
+              <Link to={`/admin/product3/${product.id}`} className="btn btn-dark m-2" style={titleStyle}>
+                Ver
               </Link>
+              <button className="btn btn-danger m-1" style={titleStyle} onClick={() => handleDelete(product.id)}>
+               Eliminar
+              </button>
+              <button className="btn btn-warning m-1" style={titleStyle} onClick={() => handleUpdate(product.id)}>
+              Actualizar
+              </button>
             </div>
           </div>
         </div>
@@ -239,13 +255,20 @@ const Products2 = () => {
 
   return (
     <div className="container" style={{ backgroundColor: "rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}>
-      <h1 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
-        Productos
-      </h1>
-      <hr />
-      {loading ? <Loading /> : <ShowProducts />}
+      <div className="row">
+        <div className="col-12">
+          <h2 className="display-5 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
+            PRODUCTOS
+          </h2>
+          <hr />
+        </div>
+      </div>
+
+      <div className="row justify-content-center">
+        {loading ? <Loading /> : <ShowProducts />}
+      </div>
     </div>
   );
 };
 
-export default Products2;
+export default Products3;

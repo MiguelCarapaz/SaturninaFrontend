@@ -1,15 +1,17 @@
-// For Add Item to Cart
-export const addCart = (product) =>{
-    return {
-        type:"ADDITEM",
-        payload:product
-    }
-}
+export const ADD_CART = "cart/add";
+export const DEL_CART = "cart/remove";
+export const VACIAR_CARRITO = "cart/clear";
 
-// For Delete Item to Cart
-export const delCart = (product) =>{
-    return {
-        type:"DELITEM",
-        payload:product
-    }
-}
+export const agregarAlCarrito = (producto) => ({
+  type: ADD_CART,
+  payload: producto,
+});
+
+export const eliminarDelCarrito = (producto) => ({
+  type: DEL_CART,
+  payload: producto,
+});
+
+export const vaciarCarrito = () => ({
+  type: VACIAR_CARRITO,
+});

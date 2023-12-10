@@ -1,33 +1,40 @@
-const cart = []
+import { ADD_CART, DEL_CART, VACIAR_CARRITO } from "../action/index";
 
-const handleCart = (state=cart, action) =>{
-    const product = action.payload
-    switch(action.type){
-        case "ADDITEM":
-            // Check if product already in cart
-            const exist = state.find((x) => x.id === product.id)
-            if(exist){
-                // Increase the quantity
-                return state.map((x)=>x.id ===product.id?{...x, qty: x.qty+1}:x)
-            }
-            else{
-                return [...state, {...product, qty:1}]
-            }
-            break;
-        case "DELITEM":
-            const exist2 = state.find((x) => x.id === product.id)
-            if(exist2.qty === 1){
-                return state.filter((x)=>x.id!==exist2.id)
-            }
-            else{
-                return state.map((x)=> x.id===product.id?{...x, qty:x.qty-1}:x)
-            }
-            break;
+const cart = [];
 
-        default:
-            return state
-            break;
-    }
-}
+const handleCart = (state = cart, action) => {
+  const producto = action.payload;
+  switch (action.type) {
+    case ADD_CART:
+      const existe = state.find((x) => x.id === producto.id);
+      if (existe) {
+        console.log('El artículo ya existe. Actualizando cantidad.');
+        return state.map((x) => (x.id === producto.id ? { ...x, cantidad: x.cantidad + 1 } : x));
+      } else {
+        console.log('El artículo no existe. Agregando al carrito.');
+        return [...state, { ...producto, cantidad: 1 }];
+      }
 
-export default handleCart
+    case DEL_CART:
+      const existe2 = state.find((x) => x.id === producto.id);
+
+      if (existe2) {
+        console.log('El artículo existe. Actualizando cantidad o eliminando del carrito.');
+        return existe2.cantidad > 1
+          ? state.map((x) => (x.id === producto.id ? { ...x, cantidad: x.cantidad - 1 } : x))
+          : state.filter((x) => x.id !== producto.id);
+      } else {
+        console.log('El artículo no existe. No se requiere ninguna acción.');
+        return state;
+      }
+
+    case VACIAR_CARRITO:
+      console.log('Vaciando el carrito.');
+      return [];
+
+    default:
+      return state;
+  }
+};
+
+export default handleCart;

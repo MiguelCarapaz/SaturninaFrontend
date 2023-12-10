@@ -15,7 +15,7 @@ const Recuperar = () => {
 
   const handleRecoverAccount = async (values, actions) => {
     try {
-      const response = await fetch('https://test-back-4kx4.onrender.com/api/v1/recover-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/recover-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ const Recuperar = () => {
               return;
             }
 
-            const response = await fetch(`https://test-back-4kx4.onrender.com/api/v1/new-password/${token}`, {
+            const response = await fetch(`https://test-back-dev-nprj.3.us-1.fl0.io/api/v1/new-password/${token}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

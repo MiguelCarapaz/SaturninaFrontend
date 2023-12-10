@@ -4,14 +4,14 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({});
-  const backendUrl = "https://test-back-4kx4.onrender.com";
+  const backendUrl = "https://test-back-dev-nprj.3.us-1.fl0.io";
 
   const perfil = async (token) => {
     try {
-      const url = `${backendUrl}/api/v1/profile`;
+      const url = `${backendUrl}/api/v1/user`; // Ruta correcta para obtener datos del perfil
       const options = {
+        method: 'GET', // Utiliza el método HTTP GET para obtener los datos del perfil
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       };
@@ -21,12 +21,12 @@ const AuthProvider = ({ children }) => {
         setAuth(data);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     if (token) {
       perfil(token);
     }
