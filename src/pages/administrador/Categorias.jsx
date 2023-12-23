@@ -4,7 +4,9 @@ import { Navbar3, Footer3 } from "../../components/administrador/administrador";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from 'sweetalert2'; 
 import "react-toastify/dist/ReactToastify.css";
+import 'sweetalert2/dist/sweetalert2.min.css'; 
 
 const Categorias = () => {
   const dispatch = useDispatch();
@@ -35,21 +37,40 @@ const Categorias = () => {
     fetchCategorias();
   }, []);
 
-const handleEliminarCategoria = async (idCategoria) => {
+  const handleEliminarCategoria = async (idCategoria) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/category/${idCategoria}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+      const confirmDelete = await Swal.fire({
+        title: '¿Está seguro de eliminar esta categoría?',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
       });
-
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
-      setCategorias(response.data.detail);
-
-      toast.success("Categoría eliminada exitosamente.", { autoClose: 3000 });
+  
+      if (confirmDelete.isConfirmed) {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/category/${idCategoria}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+  
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
+        setCategorias(response.data.detail);
+  
+        // Utiliza SweetAlert2 para mostrar el mensaje de éxito
+        Swal.fire('Categoría eliminada exitosamente', '', 'success');
+      }
     } catch (error) {
-      console.error("Error al eliminar la categoría:", error);
-      setError("No se pudo eliminar la categoría. Ya que esta tiene asociado productos.");
+      if (error.response && error.response.status === 403) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al eliminar la categoría',
+          text: 'No se pudo eliminar la categoría porque tiene productos asociados.',
+          confirmButtonText: 'OK',
+        });
+      } else {
+        console.error("Error al eliminar la categoría:", error);
+        setError("No se pudo eliminar la categoría. Ya que esta tiene asociado productos.");
+      }
     }
   };
 
@@ -67,35 +88,56 @@ const handleEliminarCategoria = async (idCategoria) => {
   const handleAgregarCategoria = async (values) => {
     try {
       const newCategory = { name: values.nombre_categoria };
-
-      if (editando) {
-        await axios.put(
-          `${import.meta.env.VITE_API_BASE_URL}/category/${categoriaSeleccionada.id}`,
-          newCategory,
-          {
+  
+      // Verificar si ya existe una categoría con el mismo nombre
+      const categoriaExistente = categorias.find(
+        (categoria) => categoria.name.toLowerCase() === values.nombre_categoria.toLowerCase()
+      );
+  
+      if (categoriaExistente) {
+        // Utiliza SweetAlert2 para mostrar el mensaje de categoría existente
+        Swal.fire({
+          icon: 'warning',
+          title: 'Categoría Existente',
+          text: 'Ya existe una categoría con el mismo nombre. Por favor, elige otro nombre.',
+          confirmButtonText: 'OK',
+        });
+      } else {
+        // Si no existe, procede con la creación o actualización
+        if (editando) {
+          await axios.put(
+            `${import.meta.env.VITE_API_BASE_URL}/category/${categoriaSeleccionada.id}`,
+            newCategory,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+  
+          // Utiliza SweetAlert2 para mostrar el mensaje de éxito
+          Swal.fire('Categoría actualizada exitosamente', '', 'success');
+        } else {
+          await axios.post(`${import.meta.env.VITE_API_BASE_URL}/category`, newCategory, {
             headers: {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
-        );
-        toast.success("Categoría actualizada exitosamente.", { autoClose: 3000 });
-      } else {
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/category`, newCategory, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
+          });
+  
+          // Utiliza SweetAlert2 para mostrar el mensaje de éxito
+          Swal.fire('Categoría creada exitosamente', '', 'success');
+        }
+  
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
+        setCategorias(response.data.detail);
+  
+        // Limpiar el formulario después de la operación con éxito
+        setFormValues({
+          nombre_categoria: "",
         });
-        toast.success("Categoría creada exitosamente.", { autoClose: 3000 });
       }
-
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
-      setCategorias(response.data.detail);
-      setFormValues({
-        nombre_categoria: "",
-        
-      });
     } catch (error) {
       console.error("Error al agregar la categoría:", error);
       setError(
@@ -103,6 +145,8 @@ const handleEliminarCategoria = async (idCategoria) => {
       );
     }
   };
+  
+
   // Nueva función para manejar la cancelación de la edición
   const handleCancelarEdicion = () => {
     setEditando(false);
@@ -128,7 +172,9 @@ const handleEliminarCategoria = async (idCategoria) => {
           },
         }
       );
-      toast.success("Categoría actualizada exitosamente.", { autoClose: 3000 });
+
+      // Utiliza SweetAlert2 para mostrar el mensaje de éxito
+      Swal.fire('Categoría actualizada exitosamente', '', 'success');
 
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
       setCategorias(response.data.detail);
@@ -194,7 +240,7 @@ const handleEliminarCategoria = async (idCategoria) => {
 
                 <Formik
                   initialValues={formValues}
-                  enableReinitialize= {true}
+                  enableReinitialize={true}
                   validate={(values) => {
                     const errors = {};
                     if (!values.nombre_categoria) {
@@ -205,7 +251,9 @@ const handleEliminarCategoria = async (idCategoria) => {
                   onSubmit={(values, { setSubmitting }) => {
                     setSubmitting(true);
                     // Determina si se está editando o agregando
-                    editando ? handleActualizarCategoria(values) : handleAgregarCategoria(values);
+                    editando
+                      ? handleActualizarCategoria(values)
+                      : handleAgregarCategoria(values);
                     setSubmitting(false);
                   }}
                 >
@@ -229,7 +277,7 @@ const handleEliminarCategoria = async (idCategoria) => {
                       <div className="form-group">
                         <button
                           type="submit"
-                          className="btn btn-success"
+                          className="btn btn-success ml-2"
                           disabled={isSubmitting}
                         >
                           {editando ? "Guardar Cambios" : "Agregar"}

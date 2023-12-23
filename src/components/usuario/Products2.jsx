@@ -11,28 +11,36 @@ const Products2 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentCategory, setCurrentCategory] = useState("category:todos");
   const [categories, setCategories] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
   const dispatch = useDispatch();
 
-  const addProduct = (product) => {
-    if (product.id) {
+  const addProductToCart = (product) => {
+    const { id, name, precio } = product;
+    const { size, color } = selectedOptions[id] || {};
+
+    if (size && color) {
       dispatch(
         actions.agregarAlCarrito({
           ...product,
-          id_producto: product.id,
-          nombre_producto: product.name,
+          id_producto: id,
+          nombre_producto: name,
+          talla: size,
+          color: color,
         })
       );
     } else {
-      console.error('El objeto del producto no tiene la propiedad id:', product);
+      console.error("Por favor, selecciona talla y color.");
     }
   };
-  
+
   useEffect(() => {
     let componentMounted = true;
 
     const fetchData = async () => {
       try {
-        const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
+        const productsResponse = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/products`
+        );
         const productsResult = await productsResponse.json();
 
         if (componentMounted) {
@@ -43,7 +51,9 @@ const Products2 = () => {
       }
 
       try {
-        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
+        const categoriesResponse = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/category`
+        );
 
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
@@ -52,7 +62,10 @@ const Products2 = () => {
             ...categoriesData.detail,
           ]);
         } else {
-          console.error("Error fetching categories:", categoriesResponse.status);
+          console.error(
+            "Error fetching categories:",
+            categoriesResponse.status
+          );
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -97,20 +110,25 @@ const Products2 = () => {
 
     const filteredProducts = data.filter(
       (product) =>
-        (currentCategory === "category:todos" || product.category === currentCategory) &&
-        (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
+        (currentCategory === "category:todos" ||
+          product.category === currentCategory) &&
+        (searchInput === "" ||
+          product.name.toLowerCase().includes(searchInput.toLowerCase()))
     );
 
     const indexOfLastProduct = currentPage * 6;
     const indexOfFirstProduct = indexOfLastProduct - 6;
-    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+    const currentProducts = filteredProducts.slice(
+      indexOfFirstProduct,
+      indexOfLastProduct
+    );
 
     return (
       <>
         <div className="buttons text-center py-5">
           {categories.map((category, index) => (
             <React.Fragment key={category.id}>
-              {(index > 0 && index % 6 === 0) && <br />}
+              {index > 0 && index % 6 === 0 && <br />}
               <button
                 className={`btn btn-outline-dark btn-sm m-2 ${
                   currentCategory === category.id ? "active" : ""
@@ -134,28 +152,56 @@ const Products2 = () => {
 
         <div className="row">
           {currentProducts.map((product) => (
-            <ShowProductDetails key={product.id_producto} product={product} />
+            <ShowProductDetails
+              key={product.id_producto}
+              product={product}
+              selectedOptions={selectedOptions}
+              setSelectedOptions={setSelectedOptions}
+              addProductToCart={() => addProductToCart(product)}
+            />
           ))}
         </div>
-
         <div className="pagination text-center">
-          {Array.from({ length: Math.ceil(filteredProducts.length / 6) }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => paginate(index + 1)}
-              className={`btn btn-dark m-1 ${currentPage === index + 1 ? "active" : ""}`}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {Array.from({ length: Math.ceil(filteredProducts.length / 6) }).map(
+            (_, index) => (
+              <button
+                key={index}
+                onClick={() => paginate(index + 1)}
+                className={`btn btn-dark m-1 ${
+                  currentPage === index + 1 ? "active" : ""
+                }`}
+              >
+                {index + 1}
+              </button>
+            )
+          )}
         </div>
       </>
     );
   };
 
-  const ShowProductDetails = ({ product }) => {
-    const [selectedSize, setSelectedSize] = useState("");
-    const [selectedColor, setSelectedColor] = useState("");
+  const ShowProductDetails = ({ product, selectedOptions, setSelectedOptions, addProductToCart }) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const handleSizeChange = (e) => {
+      setSelectedOptions((prevOptions) => ({
+        ...prevOptions,
+        [product.id]: {
+          ...prevOptions[product.id],
+          size: e.target.value,
+        },
+      }));
+    };
+
+    const handleColorChange = (e) => {
+      setSelectedOptions((prevOptions) => ({
+        ...prevOptions,
+        [product.id]: {
+          ...prevOptions[product.id],
+          color: e.target.value,
+        },
+      }));
+    };
 
     const productCardStyle = {
       fontFamily: "Gotham, sans-serif",
@@ -192,18 +238,64 @@ const Products2 = () => {
       justifyContent: "space-around",
     };
 
+    const handlePrevClick = () => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? product.imagen.length - 1 : prevIndex - 1
+      );
+    };
+
+    const handleNextClick = () => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === product.imagen.length - 1 ? 0 : prevIndex + 1
+      );
+    };
+
+    const images = Array.isArray(product.imagen) && product.imagen.length > 0 ? (
+      <div className="carousel">
+        <img
+          className="card-img-top p-3"
+          src={product.imagen[currentImageIndex]?.secure_url || 'URL_POR_DEFECTO'}
+          alt={`${product.name}-${currentImageIndex}`}
+          style={imageStyle}
+        />
+        <div className="carousel-controls">
+          <button
+            className="btn btn-dark btn-sm"
+            onClick={handlePrevClick}
+          >
+            {"<"}
+          </button>
+          <button
+            className="btn btn-dark btn-sm"
+            onClick={handleNextClick}
+          >
+            {">"}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <img
+        className="card-img-top p-3"
+        src={Array.isArray(product.imagen) ? product.imagen[currentImageIndex]?.secure_url || 'URL_POR_DEFECTO' : null}
+        alt={product.name}
+        style={imageStyle}
+      />
+    );
+
     return (
-      <div id={product.id_producto} key={product.id_producto} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-        <div className="card text-center h-100" style={productCardStyle}>
-          <img
-            className="card-img-top p-3"
-            src={product.imagen.secure_url}
-            alt={product.name}
-            style={imageStyle}
-          />
+      <div
+        id={product.id_producto}
+        key={product.id_producto}
+        className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4"
+      >
+        <div
+          className="card text-center h-100"
+          style={productCardStyle}
+        >
+          {images}
           <div className="card-body">
             <h5 className="card-title" style={titleStyle}>
-              {product.name.substring(0, 12)}...
+              {product.name}
             </h5>
             <p className="card-text" style={descriptionStyle}>
               {product.descripcion}
@@ -213,18 +305,69 @@ const Products2 = () => {
             <li className="list-group-item lead" style={centeredPriceStyle}>
               $ {product.precio}
             </li>
+            <li className="list-group-item">
+              <div className="form-group">
+                <label htmlFor={`selectSize${product.id_producto}`}>
+                  Talla:
+                </label>
+                <select
+                  className="form-control"
+                  id={`selectSize${product.id_producto}`}
+                  onChange={handleSizeChange}
+                  value={selectedOptions[product.id]?.size || ""}
+                >
+                  <option key="" value="" disabled>
+                    Selecciona una talla
+                  </option>
+                  {product.tallas &&
+                    Array.isArray(product.tallas) &&
+                    product.tallas.map((talla, index) => (
+                      <option
+                        key={`${talla.name}-${talla.status}`}
+                        value={talla.name}
+                      >
+                        {talla.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </li>
+            <li className="list-group-item">
+              <div className="form-group">
+                <label htmlFor={`selectColor${product.id_producto}`}>
+                  Color:
+                </label>
+                <select
+                  className="form-control"
+                  id={`selectColor${product.id_producto}`}
+                  onChange={handleColorChange}
+                  value={selectedOptions[product.id]?.color || ""}
+                >
+                  <option key="" value="" disabled>
+                    Selecciona un color
+                  </option>
+                  {product.colores &&
+                    Array.isArray(product.colores) &&
+                    product.colores.map((color, index) => (
+                      <option key={index} value={color.name}>
+                        {color.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </li>
           </ul>
           <div className="card-body">
             <div className="buttons" style={buttonGroupStyle}>
               <button
                 className="btn btn-dark m-1"
                 style={titleStyle}
-                onClick={() => addProduct(product)}
+                onClick={() => addProductToCart(product)}
               >
                 Añadir al carrito
               </button>
               <Link
-                to={"/usuario/product2/" + product.id_producto}
+                to={`/usuario/product2/${product.id}`}
                 className="btn btn-outline-dark m-1"
                 style={titleStyle}
               >

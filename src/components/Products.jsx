@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Link } from "react-router-dom";
@@ -17,6 +18,7 @@ const Products = () => {
       try {
         const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
         const productsResult = await productsResponse.json();
+
         if (componentMounted) {
           setData(productsResult.detail);
         }
@@ -26,14 +28,13 @@ const Products = () => {
 
       try {
         const categoriesResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
+
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
-          if (componentMounted) {
-            setCategories([
-              { id: "category:todos", name: "Todos" },
-              ...categoriesData.detail,
-            ]);
-          }
+          setCategories([
+            { id: "category:todos", name: "Todos" },
+            ...categoriesData.detail,
+          ]);
         } else {
           console.error("Error fetching categories:", categoriesResponse.status);
         }
@@ -41,7 +42,9 @@ const Products = () => {
         console.error("Error fetching categories:", error);
       }
 
-      setLoading(false);
+      if (componentMounted) {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -79,8 +82,7 @@ const Products = () => {
     const filteredProducts = data.filter(
       (product) =>
         (currentCategory === "category:todos" || product.category === currentCategory) &&
-        (searchInput === "" ||
-          product.name.toLowerCase().includes(searchInput.toLowerCase()))
+        (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
     );
 
     const indexOfLastProduct = currentPage * 6;
@@ -116,7 +118,7 @@ const Products = () => {
 
         <div className="row">
           {currentProducts.map((product) => (
-            <ShowProductDetails key={product.id} product={product} />
+            <ShowProductDetails key={product.id_producto} product={product} />
           ))}
         </div>
 
@@ -138,6 +140,15 @@ const Products = () => {
   const ShowProductDetails = ({ product }) => {
     const [selectedSize, setSelectedSize] = useState("");
     const [selectedColor, setSelectedColor] = useState("");
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const handlePrevClick = () => {
+      setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? product.imagen.length - 1 : prevIndex - 1));
+    };
+
+    const handleNextClick = () => {
+      setCurrentImageIndex((prevIndex) => (prevIndex === product.imagen.length - 1 ? 0 : prevIndex + 1));
+    };
 
     const productCardStyle = {
       fontFamily: "Gotham, sans-serif",
@@ -170,15 +181,44 @@ const Products = () => {
       alignItems: "center",
     };
 
-    return (
-      <div id={product.id} key={product.id} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-        <div className="card text-center h-100" style={productCardStyle}>
+    const buttonGroupStyle = {
+      justifyContent: "space-around",
+    };
+
+    const images = Array.isArray(product.imagen)
+      ? (
+        <div className="carousel">
           <img
             className="card-img-top p-3"
-            src={product.imagen.secure_url}
-            alt={product.name}
+            src={product.imagen[currentImageIndex]?.secure_url}
+            alt={`${product.name}-${currentImageIndex}`}
             style={imageStyle}
           />
+          {product.imagen.length > 1 && (
+            <div className="carousel-controls">
+              <button className="btn btn-dark btn-sm" onClick={handlePrevClick}>
+                {"<"}
+              </button>
+              <button className="btn btn-dark btn-sm" onClick={handleNextClick}>
+                {">"}
+              </button>
+            </div>
+          )}
+        </div>
+      )
+      : (
+        <img
+          className="card-img-top p-3"
+          src={Array.isArray(product.imagen) ? product.imagen[currentImageIndex]?.secure_url : null}
+          alt={product.name}
+          style={imageStyle}
+        />
+      );
+
+    return (
+      <div id={product.id_producto} key={product.id_producto} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
+        <div className="card text-center h-100" style={productCardStyle}>
+          {images}
           <div className="card-body">
             <h5 className="card-title" style={titleStyle}>
               {product.name.substring(0, 12)}...
@@ -192,36 +232,30 @@ const Products = () => {
               $ {product.precio}
             </li>
           </ul>
-          <Link
-            to={"/product/" + product.id}
-            className="btn btn-dark m-2"
-            style={titleStyle}
-          >
-            Ver
-          </Link>
+          <div className="card-body">
+            <div className="buttons" style={buttonGroupStyle}>
+              <Link
+                to={`/product/${product.id}`}
+                className="btn btn-outline-dark m-1"
+                style={titleStyle}
+              >
+                Ver detalles
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <>
-      <div
-        className="container"
-        style={{ backgroundColor: "rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}
-      >
-        <div className="row">
-          <div className="col-12">
-            <h2 className="display-5 text-center">PRODUCTOS</h2>
-            <hr />
-          </div>
-        </div>
-
-        <div className="row justify-content-center">
-          {loading ? <Loading /> : <ShowProducts />}
-        </div>
-      </div>
-    </>
+    <div className="container py-5"  style={{ backgroundColor: "rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}>
+      <h1 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
+        Productos
+      </h1>
+      <hr />
+      {loading ? <Loading /> : <ShowProducts />}
+    </div>
   );
 };
 

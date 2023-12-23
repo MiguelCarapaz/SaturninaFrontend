@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Footer2, Navbar2 } from "../../components/usuario/usuario";
 import { useSelector, useDispatch } from "react-redux";
 import { agregarAlCarrito, eliminarDelCarrito } from "../../redux/action";
@@ -37,12 +37,20 @@ const Cart = () => {
     let subtotal = 0;
     let totalItems = 0;
 
-    state.forEach((item) => {
+    const [imageIndexes, setImageIndexes] = useState(state.map(() => 0));
+
+    state.forEach((item, index) => {
       subtotal += item.precio * item.cantidad;
       totalItems += item.cantidad;
     });
 
     const totalOrder = subtotal;
+
+    const handleImageChange = (index, imageIndex) => {
+      const newImageIndexes = [...imageIndexes];
+      newImageIndexes[index] = imageIndex;
+      setImageIndexes(newImageIndexes);
+    };
 
     return (
       <section className="h-100 gradient-custom">
@@ -54,18 +62,33 @@ const Cart = () => {
                   <h5 className="mb-0">Lista de Productos</h5>
                 </div>
                 <div className="card-body">
-                  {state.map((item) => (
+                  {state.map((item, index) => (
                     <div key={item.id_producto} className="my-4">
                       <div className="row align-items-center">
                         <div className="col-md-4">
-                          <div className="bg-image rounded" data-mdb-ripple-color="light">
-                            <img
-                              src={item.imagen?.secure_url || ""}
-                              alt={item.nombre_producto}
-                              width={100}
-                              height={75}
-                            />
-                          </div>
+                          {item.imagen && Array.isArray(item.imagen) && item.imagen.length > 0 && (
+                            <div className="image-container">
+                              <img
+                                className="card-img-top p-3 main-image"
+                                src={item.imagen[imageIndexes[index]].secure_url}
+                                alt={`${item.nombre_producto}-${imageIndexes[index]}`}
+                                style={{ height: "100px", width: "auto" }}
+                              />
+                              {item.imagen.length > 1 && (
+                                <div className="thumbnail-container mt-3">
+                                  {item.imagen.map((image, imgIndex) => (
+                                    <img
+                                      key={imgIndex}
+                                      className={`thumbnail ${imgIndex === imageIndexes[index] ? 'selected' : ''}`}
+                                      src={image.secure_url}
+                                      alt={`${item.nombre_producto}-${imgIndex}`}
+                                      onClick={() => handleImageChange(index, imgIndex)}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-4">
                           <p>
@@ -95,6 +118,9 @@ const Cart = () => {
                           </div>
                           <p className="text-center">
                             <strong>${Math.round(item.precio * item.cantidad)}</strong>
+                          </p>
+                          <p className="text-center">
+                            <strong>Talla:</strong> {item.talla}, <strong>Color:</strong> {item.color}
                           </p>
                         </div>
                       </div>
@@ -152,6 +178,35 @@ const Cart = () => {
         {state.length > 0 ? <ShowCart /> : <EmptyCart />}
       </div>
       <Footer2 />
+      <style>{`
+        .image-container {
+          position: relative;
+        }
+        
+        .thumbnail-container {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          margin-top: 10px;
+        }
+        
+        .thumbnail {
+          width: 60px;
+          height: 60px;
+          cursor: pointer;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+        }
+        
+        .selected {
+          border-color: #4caf50;
+        }
+        
+        .main-image {
+          width: 320px; 
+          height: 320px; 
+        }
+      `}</style>
     </>
   );
 };

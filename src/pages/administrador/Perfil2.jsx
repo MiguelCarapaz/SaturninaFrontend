@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Navbar3, Footer3 } from '../../components/administrador/administrador';
-import AuthContext from '../../context/AuthProvider';
+import { AuthContext } from '../../context/AuthProvider';
+import { Link } from 'react-router-dom';
 
 const Perfil2 = () => {
   const { auth } = useContext(AuthContext);
@@ -104,6 +105,9 @@ const Perfil2 = () => {
                 >
                   Actualizar Perfil
                 </button>
+                <Link to="/admin/verpedidosadmin/" className="btn btn-dark btn-lg btn-block">
+                 Ver Pedidos
+                </Link>
               </div>
             </div>
           </div>

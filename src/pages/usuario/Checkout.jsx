@@ -30,6 +30,8 @@ const Checkout = () => {
       const productsData = state.map((item) => ({
         id_producto: item.id,
         cantidad: item.cantidad,
+        talla: item.talla,
+        color: item.color,
       }));
 
       const orderData = {
@@ -186,8 +188,12 @@ const Checkout = () => {
                         <ErrorMessage name="transfer_image" component="div" className="text-danger" />
                       </div>
                       <div className="text-center">
-                        <button className="my-2 mx-auto btn btn-dark" type="submit" disabled={isSubmitting}>
-                          {isSubmitting ? "Procesando..." : "Realizar Pedido"}
+                        <button
+                          className="my-2 mx-auto btn btn-dark"
+                          type="submit"
+                          disabled={isSubmitting || showSuccessMessage}
+                        >
+                          {isSubmitting ? 'Procesando...' : 'Realizar Pedido'}
                         </button>
                       </div>
                       {status && status.error && typeof status.error === 'string' && (
@@ -213,7 +219,8 @@ const Checkout = () => {
                         key={item.id_producto}
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
-                        {item.nombre_producto} ({item.cantidad})<span>${Math.round(item.precio * item.cantidad)}</span>
+                        {item.nombre_producto} ({item.cantidad}) - Talla: {item.talla || "N/A"}, Color: {item.color || "N/A"} 
+                        <span>${Math.round(item.precio * item.cantidad)}</span>
                       </li>
                     ))}
                     <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">

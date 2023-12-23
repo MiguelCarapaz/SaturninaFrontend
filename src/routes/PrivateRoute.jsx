@@ -1,18 +1,20 @@
 import React, { useContext } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
-import AuthContext from '../context/AuthProvider';
+import { Navigate, Outlet } from 'react-router-dom';
+import { AuthContext } from '../context/AuthProvider';
 
-function PrivateRoute({ roles, ...props }) {
-  const { auth } = useContext(AuthContext);
+const PrivateRoute = ({ roles, ...props }) => {
+  const { auth, perfilLoaded } = useContext(AuthContext);
 
-  // Agregar registros para verificar el token y el rol
-  console.log('Auth en PrivateRoute:', auth);
+  if (!perfilLoaded) {
+    // Puedes mostrar un spinner o algún indicador de carga mientras se obtiene el perfil
+    return null;
+  }
 
-  if (!auth.authToken || (roles && !roles.includes(auth.role))) {
+  if (!auth.authToken || (roles && !roles.includes(auth.user?.role))) {
     return <Navigate to="/login" />;
   }
 
   return <Outlet {...props} />;
-}
+};
 
 export default PrivateRoute;

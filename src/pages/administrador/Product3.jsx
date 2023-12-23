@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-import { Footer3, Navbar3 } from "../../components/administrador/administrador";
+import { Footer3, Navbar3, Comentarios3 } from "../../components/administrador/administrador";
 
 const Product3 = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const Product3 = () => {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -27,7 +29,6 @@ const Product3 = () => {
         const data = await response.json();
         setProduct(data.detail);
         setLoading(false);
-        setSimilarProducts(data.detail);
         setLoading2(false);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -85,13 +86,38 @@ const Product3 = () => {
         <div className="container my-5 py-2">
           <div className="row">
             <div className="col-md-6 col-sm-12 py-3">
-              <img
-                className="img-fluid"
-                src={product.imagen?.secure_url || ''}
-                alt={product.name}
-                width="320px"
-                height="320px"
-              />
+              <div className="image-container">
+                <img
+                  className="img-fluid"
+                  src={product.imagen?.[currentImageIndex]?.secure_url || ''}
+                  alt={product.name}
+                />
+                {product.imagen && product.imagen.length > 1 && (
+                  <>
+                    <FaChevronLeft
+                      className="arrow left-arrow"
+                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length)}
+                    />
+                    <FaChevronRight
+                      className="arrow right-arrow"
+                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)}
+                    />
+                  </>
+                )}
+              </div>
+              {product.imagen && product.imagen.length > 1 && (
+                <div className="thumbnail-container mt-3">
+                  {product.imagen.map((img, index) => (
+                    <img
+                      key={index}
+                      className={`thumbnail ${index === currentImageIndex ? 'selected' : ''}`}
+                      src={img.secure_url}
+                      alt={product.name}
+                      onClick={() => setCurrentImageIndex(index)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
@@ -101,6 +127,7 @@ const Product3 = () => {
             </div>
           </div>
         </div>
+        <Comentarios3 productId={product.id} />
       </>
     );
   };
@@ -111,11 +138,55 @@ const Product3 = () => {
       <div className="container">
         <div className="row">{loading ? <Loading /> : <ShowProduct />}</div>
         <div className="row my-5 py-5">
-          <div className="d-none d-md-block">
-          </div>
+          <div className="d-none d-md-block"></div>
         </div>
       </div>
       <Footer3 />
+      <style>{`
+        .image-container {
+          position: relative;
+        }
+        
+        .arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 2rem;
+          cursor: pointer;
+        }
+        
+        .left-arrow {
+          left: 10px;
+        }
+        
+        .right-arrow {
+          right: 10px;
+        }
+        
+        .thumbnail-container {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          margin-top: 10px;
+        }
+        
+        .thumbnail {
+          width: 60px;
+          height: 60px;
+          cursor: pointer;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+        }
+        
+        .selected {
+          border-color: #4caf50;
+        }
+        
+        .img-fluid {
+          width: 320px; 
+          height: 320px; 
+        }
+      `}</style>
     </>
   );
 };

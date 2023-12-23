@@ -1,74 +1,67 @@
-import { createContext, useEffect, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({});
-  const backendUrl = "https://test-back-dev-nprj.3.us-1.fl0.io";
-
-  const perfil = async (token) => {
-    try {
-      const url = `${backendUrl}/api/v1/user`; // Ruta correcta para obtener datos del perfil
-      const options = {
-        method: 'GET', // Utiliza el método HTTP GET para obtener los datos del perfil
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const respuesta = await fetch(url, options);
-      if (respuesta.ok) {
-        const data = await respuesta.json();
-        setAuth(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const [auth, setAuth] = useState({
+    authToken: localStorage.getItem('authToken') || null,
+    user: null,
+  });
+  const [perfilLoaded, setPerfilLoaded] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      perfil(token);
-    }
-  }, []);
+    const cargarPerfil = async () => {
+      try {
+        if (auth.authToken) {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/profile`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${auth.authToken}`,
+            },
+          });
 
-  const login = async (formData) => {
-    try {
-      const response = await fetch(`${backendUrl}/api/v1/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+          if (response.ok) {
+            const userData = await response.json();
+            setAuth((prevAuth) => ({
+              ...prevAuth,
+              user: userData,
+            }));
+          } else {
+            console.error('Error al obtener datos del usuario:', response.status);
+          }
+        }
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("authToken", data.token);
-        setAuth(data);
-        return true;
-      } else {
-        return false;
+        setPerfilLoaded(true);
+      } catch (error) {
+        console.error('Error al cargar el perfil del usuario:', error);
       }
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
+    };
+    
+    cargarPerfil();
+  }, [auth.authToken]);
+
+  const login = (token) => {
+    localStorage.setItem('authToken', token);
+    setAuth({
+      authToken: token,
+      user: null,
+    });
+  };
+
+  
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setAuth({
+      authToken: null,
+      user: null,
+    });
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        auth,
-        setAuth,
-        perfil,
-        login,
-      }}
-    >
+    <AuthContext.Provider value={{ auth, perfilLoaded, login, logout, setAuth }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export { AuthProvider, AuthContext };
-export default AuthContext;
+export { AuthContext, AuthProvider };

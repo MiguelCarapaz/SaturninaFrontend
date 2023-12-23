@@ -1,12 +1,12 @@
-import React from 'react';
-import { Outlet, Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import { AuthProvider } from './context/AuthProvider';
 import PrivateRoute from './routes/PrivateRoute';
 import Auth from "./layout/Auth";
-import '../node_modules/font-awesome/css/font-awesome.min.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+
 // Componentes
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
@@ -14,7 +14,9 @@ import Product from './pages/Product';
 import PageNotFound from './pages/PageNotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Recuperar from './pages/Recuperar';
+import RecuperarCorreo from './pages/RecuperarCorreo';
+import CambiarContrasena from './pages/CambiarContrasena';
+
 //usuario
 import Dashboard2 from './pages/usuario/Dashboard2';
 import Products2 from './pages/usuario/Products2';
@@ -22,6 +24,9 @@ import Product2 from './pages/usuario/Product2';
 import Cart from './pages/usuario/Cart';
 import Checkout from './pages/usuario/Checkout';
 import Perfil from './pages/usuario/Perfil';
+import VerPedidos from './pages/usuario/VerPedidos';
+
+
 //administrador
 import Dashboard3 from './pages/administrador/Dashboard3';
 import Products3 from './pages/administrador/Products3';
@@ -30,8 +35,13 @@ import Perfil2 from './pages/administrador/Perfil2';
 import NuevoProducto from './pages/administrador/NuevoProducto';
 import ActualizarProducto from './pages/administrador/ActualizarProducto';
 import Categorias from './pages/administrador/Categorias';
+import VerPedidosAdmin from './pages/administrador/VerPedidosAdmin';
+
+
 
 function App() {
+
+
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -44,7 +54,9 @@ function App() {
           <Route path="/product/:id" element={<Product />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/recuperar" element={<Recuperar />} />
+          <Route path="/recuperarcorreo" element={<RecuperarCorreo />} />
+          <Route path="/cambiarcontrasena/:token" element={<CambiarContrasena />} />
+
 
           {/* Rutas privadas */}
           <Route path="/usuario/*" element={<PrivateRoute />}>
@@ -55,6 +67,9 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="perfil" element={<Perfil />} />
+            <Route path="verpedidos" element={<VerPedidos />} />
+
+
           </Route>
       {/* Rutas privadas del administrador */}
       <Route path="/admin/*" element={<PrivateRoute />}>
@@ -66,8 +81,8 @@ function App() {
             <Route path="nuevoproducto" element={<NuevoProducto />} />
             <Route path="actualizarproducto/:id" element={<ActualizarProducto />} />
             <Route path="categorias" element={<Categorias />} />
+            <Route path="verpedidosadmin" element={<VerPedidosAdmin />} />     
 
-            
           </Route>
 
           <Route path="*" element={<PageNotFound />} />

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Footer, Navbar } from '../components/Dashboard';
-import AuthContext from '../context/AuthProvider';
+import { AuthContext } from '../context/AuthProvider';
 
 const Login = () => {
   const { auth, setAuth } = useContext(AuthContext);
@@ -10,6 +10,7 @@ const Login = () => {
 
   // Define un estado para almacenar los datos del usuario
   const [userData, setUserData] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -22,16 +23,28 @@ const Login = () => {
   useEffect(() => {
     // Verificar el token de autenticación al cargar la página
     checkAuthStatus();
-  }, []);
+  }, [setAuth, navigate]); // Agrega las dependencias correctas
 
   // Función para verificar el token de autenticación
   function checkAuthStatus() {
     const authToken = localStorage.getItem('authToken');
-    if (authToken) {
+    if (authToken && !auth.authToken) {
+      // Agrega una verificación adicional
       setAuth({ authToken });
-      navigate('/usuario/Dashboard2');
     }
   }
+
+  useEffect(() => {
+    // Redirige después de verificar el estado de autenticación
+    if (auth.authToken) {
+      console.log('Correo electrónico en la lógica de redirección:', userEmail);
+      if (userEmail === 'miguelotaku01@gmail.com') {
+        navigate('/admin/dashboard3');
+      } else if (userEmail === 'miguelcarapaz01@gmail.com') {
+        navigate('/usuario/dashboard2');
+      }
+    }
+  }, [auth.authToken, userEmail, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -56,29 +69,36 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         const authToken = data.detail.token;
-        const username = data.detail.nombre;
         const id = data.detail.id;
-
+        const role = data.detail.rol; // Nuevo: obtén el rol del usuario
+        const userEmail = data.detail.email; // Nuevo: obtén el correo electrónico del usuario
 
         // Guarda todos los datos del usuario
         setUserData(data.detail);
+        setUserEmail(userEmail);
 
         // Verifica si se obtuvo un token válido
         if (authToken) {
           localStorage.setItem('authToken', authToken);
           localStorage.setItem('id', id); // Almacena el ID por separado
           setAuth({ authToken });
-           // Redirige a la ruta del administrador si el correo es el específico
-           if (formData.email === 'miguelotaku01@gmail.com') {
+
+          // Determina la ruta de redirección según el rol
+          if (role === 'rol:74rvq7jatzo6ac19mc79') {
+            // Administrador
             navigate('/admin/dashboard3');
-          } else {
+          } else if (role === 'rol:vuqn7k4vw0m1a3wt7fkb') {
+            // Usuario
             navigate('/usuario/dashboard2');
+          } else {
+            // Otros roles o manejar de otra manera
+            console.error('Rol desconocido:', role);
           }
 
           console.log('Token de autenticación:', authToken);
-          console.log('Nombre de usuario:', username);
           console.log('id:', id);
-
+          console.log('Rol:', role);
+          console.log('Correo electrónico:', userEmail);
         } else {
           console.error('El token no se recibió en la respuesta.');
         }
@@ -145,7 +165,7 @@ const Login = () => {
               <div className="my-3">
                 <p>
                   ¿Olvidaste tu contraseña?{' '}
-                  <Link to="/Recuperar" className="text-decoration-underline text-info">
+                  <Link to="/recuperarcorreo" className="text-decoration-underline text-info">
                     Recupera tu cuenta
                   </Link>
                 </p>
@@ -160,7 +180,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

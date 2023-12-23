@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Navbar2, Footer2 } from '../../components/usuario/usuario';
-import AuthContext from '../../context/AuthProvider';
+import { AuthContext } from '../../context/AuthProvider';
+import { Link } from 'react-router-dom';
+
 
 const Perfil = () => {
   const { auth } = useContext(AuthContext);
@@ -15,7 +17,7 @@ const Perfil = () => {
     const storedId = localStorage.getItem('id');
     console.log('Stored ID:', storedId);
 
-    fetch(`https://test-back-dev-nprj.3.us-1.fl0.io/api/v1/user/${storedId}`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
       headers: {
         Authorization: `Bearer ${auth.authToken}`,
       },
@@ -104,6 +106,9 @@ const Perfil = () => {
                 >
                   Actualizar Perfil
                 </button>
+                <Link to="/usuario/verpedidos/" className="btn btn-dark btn-lg btn-block">
+                 Ver Pedidos
+                </Link>
               </div>
             </div>
           </div>
