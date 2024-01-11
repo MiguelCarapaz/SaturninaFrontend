@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Navbar2, Footer2 } from "../../components/usuario/usuario";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
 import { vaciarCarrito } from "../../redux/action";
+import { Link, useNavigate } from "react-router-dom";
 
 const Checkout = () => {
   const [authToken] = useState(localStorage.getItem("authToken") || "");
@@ -25,14 +26,82 @@ const Checkout = () => {
     return totalOrder;
   };
 
+  const handleChange = (e, setFieldValue) => {
+    const { name, value } = e.target;
+
+    if (name === "nombre" || name === "apellido") {
+      const trimmedValue = value.slice(0, 20);
+      setFieldValue(name, trimmedValue);
+    } else if (name === "telefono") {
+      const numericValue = value.replace(/[^0-9]/g, "");
+      const trimmedValue = numericValue.slice(0, 10);
+      setFieldValue(name, trimmedValue);
+    } else {
+      setFieldValue(name, value);
+    }
+  };
+
+  const handleConfirmPedido = async (values, { setSubmitting, setFieldValue, setStatus }) => {
+    // Validar que todos los campos obligatorios estén completos
+    const requiredFields = ["nombre", "apellido", "direccion", "email", "telefono", "descripcion", "transfer_image"];
+    const incompleteFields = requiredFields.filter((field) => !values[field]);
+
+    if (incompleteFields.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: `Por favor, completa todos los campos obligatorios.`,
+      });
+      return;
+    }
+
+    // Validar que el campo de teléfono tenga 10 dígitos
+    if (values.telefono.length !== 10) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El número de teléfono debe tener exactamente 10 dígitos.',
+      });
+      return;
+    }
+
+    // Mostrar la alerta de confirmación
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción realizará el pedido. ¿Deseas continuar?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, realizar pedido',
+      cancelButtonText: 'Cancelar',
+    });
+
+    // Actualizar el estado local según la respuesta del usuario
+    if (result.isConfirmed) {
+      setSubmitting(true);
+      try {
+        await handleSubmit(values, { setSubmitting, setFieldValue, setStatus });
+      } catch (error) {
+        console.error('Error en la confirmación del pedido:', error);
+        setStatus({
+          error: 'Error en la confirmación del pedido: ' + error.message,
+        });
+        setSubmitting(false);
+      }
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting, setFieldValue, setStatus }) => {
     try {
-      const productsData = state.map((item) => ({
-        id_producto: item.id,
-        cantidad: item.cantidad,
-        talla: item.talla,
-        color: item.color,
-      }));
+      const productsData = state
+        .filter((item) => item.talla || item.color)
+        .map((item) => ({
+          id_producto: item.id,
+          cantidad: item.cantidad,
+          talla: item.talla || null, 
+          color: item.color || null, 
+        }));
 
       const orderData = {
         user_id: userId,
@@ -49,6 +118,7 @@ const Checkout = () => {
       const formData = new FormData();
       formData.append("data", JSON.stringify(orderData));
       formData.append("transfer_image", values.transfer_image);
+      console.log("datos:", formData.get("data"));
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/order`, {
         method: "POST",
@@ -63,6 +133,13 @@ const Checkout = () => {
         dispatch(vaciarCarrito());
         setSubmitting(false);
         setStatus({});
+        Swal.fire({
+          title: "Pedido realizado exitosamente",
+          icon: "success",
+        }).then(() => {
+          setShowSuccessMessage(false);
+          navigate("/usuario/dashboard2");
+        });
       } else {
         const data = await response.json();
         setStatus({
@@ -114,9 +191,11 @@ const Checkout = () => {
                     telefono: "",
                     descripcion: "",
                   }}
-                  onSubmit={handleSubmit}
+                  onSubmit={(values, { setSubmitting, setFieldValue, setStatus }) =>
+                    handleConfirmPedido(values, { setSubmitting, setFieldValue, setStatus })
+                  }
                 >
-                  {({ isSubmitting, setFieldValue, status }) => (
+                  {({ isSubmitting, setFieldValue, status, values }) => (
                     <Form>
                       <div className="form my-3">
                         <label htmlFor="nombre">Nombre:</label>
@@ -125,6 +204,9 @@ const Checkout = () => {
                           name="nombre"
                           className="form-control"
                           placeholder="Ingresa tu nombre"
+                          onChange={(e) => handleChange(e, setFieldValue)}
+                          minLength="3"
+                          maxLength="10"
                           required
                         />
                       </div>
@@ -135,6 +217,9 @@ const Checkout = () => {
                           name="apellido"
                           className="form-control"
                           placeholder="Ingresa tu apellido"
+                          onChange={(e) => handleChange(e, setFieldValue)}
+                          minLength="3"
+                          maxLength="10"
                           required
                         />
                       </div>
@@ -165,8 +250,13 @@ const Checkout = () => {
                           name="telefono"
                           className="form-control"
                           placeholder="Ingresa tu teléfono"
+                          onChange={(e) => handleChange(e, setFieldValue)}
+                          maxLength="10"
                           required
                         />
+                        {values.telefono.length !== 10 && (
+                          <small className="text-danger">El teléfono debe tener exactamente 10 dígitos.</small>
+                        )}
                       </div>
                       <div className="form my-3">
                         <label htmlFor="descripcion">Descripción:</label>
@@ -175,8 +265,14 @@ const Checkout = () => {
                           name="descripcion"
                           className="form-control"
                           placeholder="Ingresa una descripción"
+                          onChange={(e) => handleChange(e, setFieldValue)}
+                          maxLength="100"
                           required
                         />
+                        {/* Contador de caracteres en el campo de descripción */}
+                        <div className="text-right mt-2">
+                          <small>{values.descripcion.length}/100 caracteres</small>
+                        </div>
                       </div>
                       <div className="form my-3">
                         <label htmlFor="transfer_image">Comprobante de Pago:</label>
@@ -184,6 +280,7 @@ const Checkout = () => {
                           type="file"
                           name="transfer_image"
                           onChange={(event) => handleImageChange(event, setFieldValue)}
+                          required
                         />
                         <ErrorMessage name="transfer_image" component="div" className="text-danger" />
                       </div>
@@ -219,7 +316,7 @@ const Checkout = () => {
                         key={item.id_producto}
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
-                        {item.nombre_producto} ({item.cantidad}) - Talla: {item.talla || "N/A"}, Color: {item.color || "N/A"} 
+                        {item.nombre_producto} ({item.cantidad}) - Talla: {item.talla || ""}, Color: {item.color || ""}
                         <span>${Math.round(item.precio * item.cantidad)}</span>
                       </li>
                     ))}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import StarRating2 from './StarRating2';
 import { AuthContext } from '../../context/AuthProvider';
-import Swal from 'sweetalert2'; // Importa SweetAlert2
+import Swal from 'sweetalert2';
 
 const Comentario = ({ comentario }) => (
   <div style={{ border: '1px solid #ddd', padding: '10px', marginBottom: '10px' }}>
@@ -75,8 +75,9 @@ const Comentarios2 = ({ productId }) => {
   };
 
   const handleCommentChange = (event) => {
-    setNewComment((prevComment) => ({ ...prevComment, descripcion: event.target.value }));
-    setCommentError(''); // Limpiar mensaje de error al escribir en el campo
+    const commentText = event.target.value;
+    const truncatedComment = commentText.slice(0, 100);
+    setNewComment((prevComment) => ({ ...prevComment, descripcion: truncatedComment }));
   };
 
   const handlePostComment = async () => {
@@ -91,6 +92,16 @@ const Comentarios2 = ({ productId }) => {
 
       if (!newComment.descripcion) {
         setCommentError('Campo de comentario obligatorio');
+        return;
+      }
+
+      if (newComment.descripcion.length > 100) {
+        setCommentError('El comentario no puede exceder los 100 caracteres.');
+        return;
+      }
+
+      if (newComment.descripcion.length < 10 || newComment.descripcion.length > 100) {
+        setCommentError('El comentario debe tener entre 10 y 100 caracteres.');
         return;
       }
 
@@ -122,7 +133,7 @@ const Comentarios2 = ({ productId }) => {
         const data = await response.json();
         fetchComments2();
         setNewComment({ descripcion: '', calificacion: 0 });
-        setCommentError(''); // Limpiar mensaje de error
+        setCommentError(''); 
         setShowMessage(false);
 
         Swal.fire({
@@ -133,6 +144,11 @@ const Comentarios2 = ({ productId }) => {
         });
       } else {
         const errorData = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al realizar la solicitud',
+          text: 'No has comprado este producto o necesitas esperar a que finalice tu pedido.',
+        });
         console.error('Error al realizar la solicitud POST/PUT:', errorData);
       }
     } catch (error) {
@@ -178,7 +194,7 @@ const Comentarios2 = ({ productId }) => {
         const data = await response.json();
         fetchComments2();
         setNewComment({ descripcion: '', calificacion: 0 });
-        setCommentError(''); // Limpiar mensaje de error
+        setCommentError(''); 
         setShowMessage(false);
 
         Swal.fire({
@@ -221,7 +237,10 @@ const Comentarios2 = ({ productId }) => {
               value={newComment.descripcion}
               onChange={handleCommentChange}
             ></textarea>
-            {commentError && <p style={{ color: 'red', marginTop: '10px' }}>{commentError}</p>}
+            <div>
+              {commentError && <p style={{ color: 'red', marginTop: '10px' }}>{commentError}</p>}
+              <small>{newComment.descripcion.length}/100 caracteres</small>
+            </div>
             <div>
               {hasUserCommented() ? (
                 <>

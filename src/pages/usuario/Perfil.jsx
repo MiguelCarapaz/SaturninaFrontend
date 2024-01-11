@@ -2,21 +2,20 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Navbar2, Footer2 } from '../../components/usuario/usuario';
 import { AuthContext } from '../../context/AuthProvider';
 import { Link } from 'react-router-dom';
-
+import Swal from 'sweetalert2';
 
 const Perfil = () => {
   const { auth } = useContext(AuthContext);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [perfilData, setPerfilData] = useState(null); 
-  const [initialData, setInitialData] = useState(null); 
-  const [updateSuccess, setUpdateSuccess] = useState(false); 
-
+  const [isChangePasswordMode, setIsChangePasswordMode] = useState(false);
+  const [perfilData, setPerfilData] = useState(null);
+  const [initialData, setInitialData] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [checkPassword, setCheckPassword] = useState('');
 
   useEffect(() => {
-    // Realiza una solicitud al servidor para obtener los datos del perfil del usuario
     const storedId = localStorage.getItem('id');
-    console.log('Stored ID:', storedId);
-
     fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
       headers: {
         Authorization: `Bearer ${auth.authToken}`,
@@ -32,58 +31,147 @@ const Perfil = () => {
       });
   }, [auth]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'nombre' || name === 'apellido') {
+      const trimmedValue = value.slice(0, 10);
+      setPerfilData({
+        ...perfilData,
+        [name]: trimmedValue,
+      });
+    } else if (name === 'telefono') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      const trimmedValue = numericValue.slice(0, 10);
+      setPerfilData({
+        ...perfilData,
+        [name]: trimmedValue,
+      });
+    } else {
+      setPerfilData({
+        ...perfilData,
+        [name]: value,
+      });
+    }
+  };
+
   const handleUpdate = () => {
+    setIsEditMode(true);
+    setIsChangePasswordMode(false);
+  };
+
+  const handleUpdatePasswordMode = () => {
+    setIsChangePasswordMode(true);
     setIsEditMode(true);
   };
 
   const handleConfirm = () => {
+    if (perfilData.telefono.length !== 10) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El número de teléfono debe tener exactamente 10 dígitos.',
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción actualizará tu perfil. ¿Deseas continuar?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, actualizar perfil',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsEditMode(false);
+
+        const updatedData = {
+          nombre: perfilData.nombre,
+          apellido: perfilData.apellido,
+          telefono: perfilData.telefono,
+          email: perfilData.email,
+        };
+
+        const storedId = localStorage.getItem('id');
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth.authToken}`,
+          },
+          body: JSON.stringify(updatedData),
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log('Datos actualizados correctamente');
+              setUpdateSuccess(true);
+              Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Datos actualizados con éxito.',
+              });
+            } else {
+              console.error('Error al actualizar los datos');
+            }
+          })
+          .catch((error) => {
+            console.error('Error al actualizar los datos:', error);
+          });
+      }
+    });
+  };
+
+  const handleCancel = () => {
     setIsEditMode(false);
+    setPerfilData(initialData);
+  };
 
-    // Crear un objeto que contenga los datos a actualizar
-    const updatedData = {
-      nombre: perfilData.nombre,
-      apellido: perfilData.apellido,
-      telefono: perfilData.telefono,
-      email: perfilData.email,
-    };
+  const handleChangePassword = (e) => {
+    const { name, value } = e.target;
+    if (name === 'newPassword') {
+      setNewPassword(value);
+    } else if (name === 'checkPassword') {
+      setCheckPassword(value);
+    }
+  };
 
-    // Realizar la solicitud de actualización al servidor.
-    const storedId = localStorage.getItem('id');
-    console.log('Stored ID:', storedId);
-
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
+  const handleUpdatePassword = () => {
+    if (newPassword !== checkPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden.',
+      });
+      return;
+    }
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/update-password`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${auth.authToken}`,
       },
-      body: JSON.stringify(updatedData),
+      body: JSON.stringify({
+        new_password: newPassword,
+        check_password: checkPassword,
+      }),
     })
       .then((response) => {
         if (response.ok) {
-          console.log('Datos actualizados correctamente');
-          setUpdateSuccess(true); // Establece el estado para mostrar el mensaje de éxito
+          console.log('Contraseña actualizada correctamente');
+          Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Contraseña actualizada con éxito.',
+          });
         } else {
-          console.error('Error al actualizar los datos');
+          console.error('Error al actualizar la contraseña');
         }
       })
       .catch((error) => {
-        console.error('Error al actualizar los datos:', error);
-        // Maneja cualquier error que pueda ocurrir durante la solicitud.
+        console.error('Error al actualizar la contraseña:', error);
       });
-  };
-
-  const handleCancel = () => {
-    setIsEditMode(false);
-    setPerfilData(initialData); // Restaura los datos a sus valores iniciales
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPerfilData({
-      ...perfilData,
-      [name]: value,
-    });
   };
 
   return (
@@ -102,20 +190,21 @@ const Perfil = () => {
                 <button
                   className="btn btn-primary mx-auto"
                   onClick={handleUpdate}
-                  style={{ display: !isEditMode ? 'block' : 'none' }}
+                  style={{ display: !isEditMode && !isChangePasswordMode ? 'block' : 'none' }}
                 >
                   Actualizar Perfil
                 </button>
                 <Link to="/usuario/verpedidos/" className="btn btn-dark btn-lg btn-block">
-                 Ver Pedidos
+                  Ver Pedidos
                 </Link>
               </div>
             </div>
           </div>
+
           <div className="col-md-6">
             <div className="card mb-4">
               <div className="card-body">
-                {perfilData ? ( // Verifica si los datos del perfil se han cargado antes de mostrarlos
+                {perfilData ? (
                   <>
                     <div className="mb-3">
                       <label>Email:</label>
@@ -139,6 +228,8 @@ const Perfil = () => {
                           type="text"
                           className="form-control"
                           name="nombre"
+                          minLength="3"
+                          maxLength="10"
                           value={perfilData.nombre}
                           onChange={handleChange}
                         />
@@ -153,6 +244,8 @@ const Perfil = () => {
                           type="text"
                           className="form-control"
                           name="apellido"
+                          minLength="3"
+                          maxLength="10"
                           value={perfilData.apellido}
                           onChange={handleChange}
                         />
@@ -175,7 +268,7 @@ const Perfil = () => {
                       )}
                     </div>
                     <div className="text-center">
-                      {isEditMode ? (
+                      {(isEditMode || isChangePasswordMode) && (
                         <>
                           <button className="btn btn-success mx-2" onClick={handleConfirm}>
                             Confirmar
@@ -184,16 +277,71 @@ const Perfil = () => {
                             Cancelar
                           </button>
                         </>
-                      ) : (
-                        <button></button>
-                        )}
-                      {updateSuccess && (
-                        <p className="text-success">Datos actualizados con éxito.</p>
                       )}
                     </div>
                   </>
                 ) : (
                   <p>Cargando datos del perfil...</p>
+                )}
+
+                {(isEditMode || isChangePasswordMode) && (
+                  <>
+  <div className="mb-3">
+  <label>Nueva Contraseña:</label>
+  {isEditMode ? (
+    <>
+      <input
+        type="password"
+        className="form-control"
+        name="newPassword"
+        value={newPassword}
+        minLength="9"
+        maxLength= "18"
+        onChange={handleChangePassword}
+      />
+      {newPassword.length > 18 || newPassword.length < 9 || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword) ? (
+        <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
+      ) : (
+        <small className="text-success">Contraseña válida.</small>
+      )}
+    </>
+  ) : (
+    <div></div>
+  )}
+</div>
+
+<div className="mb-3">
+  <label>Confirmar Contraseña:</label>
+  {isEditMode ? (
+    <>
+      <input
+        type="password"
+        className="form-control"
+        name="checkPassword"
+        value={checkPassword}
+        minLength="9"
+        maxLength= "18"
+        onChange={handleChangePassword}
+      />
+      {checkPassword.length > 18 || checkPassword.length < 9 || !/[A-Z]/.test(checkPassword) || !/\d/.test(checkPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(checkPassword) ? (
+        <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
+      ) : (
+        <small className="text-success">Contraseña válida.</small>
+      )}
+    </>
+  ) : (
+    <div></div>
+  )}
+</div>
+
+                    <div className="text-center">
+                      {isEditMode && (
+                        <button className="btn btn-success mx-2" onClick={handleUpdatePassword}>
+                          Actualizar Contraseña
+                        </button>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

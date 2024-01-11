@@ -3,7 +3,7 @@ import Skeleton from "react-loading-skeleton";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
+import Swal from 'sweetalert2';
 import { Navbar2, Footer2, Comentarios2 } from "../../components/usuario/usuario";
 import * as actions from "../../redux/action/index";
 
@@ -14,31 +14,39 @@ const Product2 = () => {
   const [loading2, setLoading2] = useState(false);
   const [categories, setCategories] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedOptions, setSelectedOptions] = useState({
-    size: "",
-    color: "",
-  });
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const dispatch = useDispatch();
 
   const addProductToCart = () => {
+    const { id, name, precio, tallas, colores } = product;
     const { size, color } = selectedOptions;
 
-    if (size && color) {
+    const hasTallas = Array.isArray(tallas) && tallas.length > 0;
+    const hasColores = Array.isArray(colores) && colores.length > 0;
+
+    if (
+      (!hasTallas || (hasTallas && size)) &&
+      (!hasColores || (hasColores && color))
+    ) {
       dispatch(
         actions.agregarAlCarrito({
           ...product,
-          id_producto: product.id,
-          nombre_producto: product.name,
-          talla: size,
-          color: color,
+          id_producto: id,
+          nombre_producto: name,
+          talla: hasTallas ? size : "",
+          color: hasColores ? color : "",
         })
       );
     } else {
-      console.error("Por favor, selecciona talla y color.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Por favor, selecciona talla y/o color antes de añadir al carrito.',
+      });
     }
   };
-
+  
   const handleSizeChange = (e) => {
     const newSize = e.target.value;
     setSelectedOptions((prevOptions) => ({

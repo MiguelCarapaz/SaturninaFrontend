@@ -10,6 +10,7 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentCategory, setCurrentCategory] = useState("category:todos");
   const [categories, setCategories] = useState([]);
+  const [noProductsMessage, setNoProductsMessage] = useState(""); // Agregado
 
   useEffect(() => {
     let componentMounted = true;
@@ -17,27 +18,35 @@ const Products = () => {
     const fetchData = async () => {
       try {
         const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
+        if (!productsResponse.ok) {
+          throw new Error(`Error fetching products: ${productsResponse.status}`);
+        }
         const productsResult = await productsResponse.json();
 
         if (componentMounted) {
           setData(productsResult.detail);
+          setNoProductsMessage(""); 
         }
       } catch (error) {
         console.error("Error fetching products:", error);
+
+        if (error.message.includes("404") && error.message.includes("No existe ningún producto")) {
+          setNoProductsMessage("No hay productos disponibles en este momento.");
+        } else {
+          setNoProductsMessage("Error al cargar los productos. Por favor, inténtalo de nuevo más tarde.");
+        }
       }
 
       try {
         const categoriesResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
-
-        if (categoriesResponse.ok) {
-          const categoriesData = await categoriesResponse.json();
-          setCategories([
-            { id: "category:todos", name: "Todos" },
-            ...categoriesData.detail,
-          ]);
-        } else {
-          console.error("Error fetching categories:", categoriesResponse.status);
+        if (!categoriesResponse.ok) {
+          throw new Error(`Error fetching categories: ${categoriesResponse.status}`);
         }
+        const categoriesData = await categoriesResponse.json();
+        setCategories([
+          { id: "category:todos", name: "Todos" },
+          ...categoriesData.detail,
+        ]);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -79,11 +88,13 @@ const Products = () => {
   const ShowProducts = () => {
     const [searchInput, setSearchInput] = useState("");
 
-    const filteredProducts = data.filter(
-      (product) =>
-        (currentCategory === "category:todos" || product.category === currentCategory) &&
-        (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
-    );
+    const filteredProducts = Array.isArray(data)
+      ? data.filter(
+          (product) =>
+            (currentCategory === "category:todos" || product.category === currentCategory) &&
+            (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
+        )
+      : [];
 
     const indexOfLastProduct = currentPage * 6;
     const indexOfFirstProduct = indexOfLastProduct - 6;
@@ -138,8 +149,6 @@ const Products = () => {
   };
 
   const ShowProductDetails = ({ product }) => {
-    const [selectedSize, setSelectedSize] = useState("");
-    const [selectedColor, setSelectedColor] = useState("");
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handlePrevClick = () => {
@@ -249,7 +258,7 @@ const Products = () => {
   };
 
   return (
-    <div className="container py-5"  style={{ backgroundColor: "rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}>
+    <div className="container py-5" style={{ backgroundColor: "rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}>
       <h1 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
         Productos
       </h1>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Footer, Navbar } from '../components/Dashboard';
 import { Formik, Form, Field } from 'formik';
+import Swal from 'sweetalert2';
 
 const RecuperarCorreo = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -19,26 +20,36 @@ const RecuperarCorreo = () => {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         actions.setSubmitting(false);
         actions.resetForm();
-        actions.setStatus({
-          message:
-            'Hemos enviado un correo de recuperación a tu cuenta. Por favor, revisa tu bandeja de entrada.',
-        });
 
-        setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'Hemos enviado un correo de recuperación a tu cuenta. Por favor, revisa tu bandeja de entrada.',
+        }).then(() => {
           setShowChangePassword(true);
-        }, 5000);
+        });
       } else {
         const data = await response.json();
         actions.setStatus({
           error: data.error || 'Error en la solicitud de recuperación. Verifica tus datos.',
         });
         actions.setSubmitting(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: actions.status.error,
+        });
       }
     } catch (error) {
       actions.setStatus({
         error: 'Error en la solicitud de recuperación: ' + error.message,
       });
       actions.setSubmitting(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: actions.status.error,
+      });
     }
   };
 

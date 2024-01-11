@@ -11,7 +11,15 @@ const VerPedidosAdmin = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentTab, setCurrentTab] = useState('Pendiente');
   const itemsPerPage = 5;
+
+  const orderStatusTabs = {
+    'Pendiente': 'Pendiente',
+    'En entrega': 'En entrega',
+    'Rechazado': 'Rechazado',
+    'Finalizado': 'Finalizado',
+  };
 
   const fetchPedidos = async () => {
     try {
@@ -32,7 +40,7 @@ const VerPedidosAdmin = () => {
 
       if (response.data && response.data.detail && response.data.detail[0].result) {
         setPedidos(response.data.detail[0].result);
-        setSelectedPedido(response.data.detail[0].result[0]); 
+        setSelectedPedido(response.data.detail[0].result[0]);
       } else {
         console.error('La estructura de la respuesta no es la esperada:', response);
       }
@@ -47,23 +55,38 @@ const VerPedidosAdmin = () => {
 
   const updateOrderStatus = async (id, status) => {
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/orders/${id}`,
-        { status_order: status },
-        {
-          headers: {
-            Authorization: `Bearer ${auth.authToken}`,
-          },
-        }
-      );
-
-      console.log('Actualización de estado exitosa:', response);
-      Swal.fire({
-        icon: 'success',
-        title: '¡Estado actualizado!',
-        text: 'El estado del pedido se ha actualizado exitosamente.',
+      const { value: descripcion } = await Swal.fire({
+        title: 'Actualizar Estado',
+        input: 'text',
+        inputLabel: 'Ingresar Descripción',
+        inputPlaceholder: 'Ingrese una descripción...',
+        showCancelButton: true,
+        preConfirm: (input) => {
+          if (!input) {
+            Swal.showValidationMessage('Debes ingresar una descripción');
+          }
+        },
       });
-      fetchPedidos();
+  
+      if (descripcion) {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}/orders/${id}`,
+          { status_order: status, descripcion: descripcion },
+          {
+            headers: {
+              Authorization: `Bearer ${auth.authToken}`,
+            },
+          }
+        );
+  
+        console.log('Actualización de estado exitosa:', response);
+        Swal.fire({
+          icon: 'success',
+          title: '¡Estado actualizado!',
+          text: 'El estado del pedido se ha actualizado exitosamente.',
+        });
+        fetchPedidos();
+      }
     } catch (error) {
       console.error('Error en la actualización de estado:', error);
       Swal.fire({
@@ -73,6 +96,7 @@ const VerPedidosAdmin = () => {
       });
     }
   };
+  
 
   const openDetailsModal = (pedido) => {
     const imagenes = pedido.id_producto.imagen;
@@ -84,8 +108,9 @@ const VerPedidosAdmin = () => {
         <p><strong>Fecha:</strong> ${pedido.fecha}</p>
         <p><strong>Producto Adquirido:</strong> ${pedido.id_producto.name}</p>
         ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;">`).join('') : ''}
-        <p><strong>Talla:</strong> ${pedido.id_producto.tallas.map(talla => talla.name).join(', ')}</p>
-        <p><strong>Color:</strong> ${pedido.id_producto.colores.map(color => color.name).join(', ')}</p>
+        <p><strong>Descripcion del producto:</strong> ${pedido.id_orden && pedido.id_orden.descripcion}</p>
+        <p><strong>Tallas Disponibles:</strong> ${pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</p>
+        <p><strong>Colores Disponibles:</strong> ${pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</p>   
         <p><strong>Nombre y Apellido:</strong> ${pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</p>
         <p><strong>Email:</strong> ${pedido.id_orden && pedido.id_orden.email}</p>
         <p><strong>Teléfono:</strong> ${pedido.id_orden && pedido.id_orden.telefono}</p>
@@ -107,9 +132,8 @@ const VerPedidosAdmin = () => {
         title: 'Actualizar Estado',
         input: 'select',
         inputOptions: {
-          'En revisión': 'En revisión',
-          'En progreso': 'En progreso',
-          'Enviando': 'Enviando',
+          'Pendiente': 'Pendiente',
+          'En entrega': 'En entrega',
           'Rechazado': 'Rechazado',
           'Finalizado': 'Finalizado',
         },
@@ -130,7 +154,9 @@ const VerPedidosAdmin = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = pedidos.slice(indexOfFirstItem, indexOfLastItem);
+
+  const filteredPedidosByStatus = pedidos.filter(pedido => pedido.status === orderStatusTabs[currentTab]);
+  const currentFilteredItemsByStatus = filteredPedidosByStatus.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -149,6 +175,23 @@ const VerPedidosAdmin = () => {
         <h1 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
           Pedidos
         </h1>
+
+        {/* Tabs de estados */}
+        <div className="mb-3">
+          <ul className="nav nav-tabs">
+            {Object.keys(orderStatusTabs).map(tab => (
+              <li className="nav-item" key={tab}>
+                <button
+                  className={`nav-link ${currentTab === tab ? 'active' : ''}`}
+                  onClick={() => setCurrentTab(tab)}
+                >
+                  {orderStatusTabs[tab]}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="mb-3">
           <label htmlFor="search" className="form-label">Buscar por Nombre y Apellido:</label>
           <input
@@ -162,7 +205,7 @@ const VerPedidosAdmin = () => {
         </div>
         <hr />
 
-        {currentFilteredItems && currentFilteredItems.length > 0 ? (
+        {currentFilteredItemsByStatus && currentFilteredItemsByStatus.length > 0 ? (
           <table className="table">
             <thead>
               <tr>
@@ -180,12 +223,12 @@ const VerPedidosAdmin = () => {
               </tr>
             </thead>
             <tbody>
-              {currentFilteredItems.map((pedido) => (
+              {currentFilteredItemsByStatus.map((pedido) => (
                 <tr key={pedido.id}>
                   <td>{pedido.fecha}</td>
                   <td>{pedido.id_producto.name}</td>
-                  <td>{pedido.id_producto.tallas.map(talla => talla.name).join(', ')}</td>
-                  <td>{pedido.id_producto.colores.map(color => color.name).join(', ')}</td>
+                  <td>{pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</td>
+                  <td>{pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</td>
                   <td>{pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</td>
                   <td>{pedido.id_orden && pedido.id_orden.email}</td>
                   <td>{pedido.id_orden && pedido.id_orden.telefono}</td>
@@ -202,12 +245,12 @@ const VerPedidosAdmin = () => {
             </tbody>
           </table>
         ) : (
-          <p>No hay pedidos disponibles.</p>
+          <p>No hay pedidos disponibles para este estado.</p>
         )}
 
         <nav aria-label="Page navigation example">
           <ul className="pagination">
-            {Array.from({ length: Math.ceil(filteredPedidos.length / itemsPerPage) }, (_, index) => (
+            {Array.from({ length: Math.ceil(filteredPedidosByStatus.length / itemsPerPage) }, (_, index) => (
               <li className={`page-item ${index + 1 === currentPage ? 'active' : ''}`} key={index}>
                 <button className="page-link" onClick={() => paginate(index + 1)}>
                   {index + 1}

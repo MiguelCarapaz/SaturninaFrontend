@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Navbar3, Footer3 } from "../../components/administrador/administrador";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import Swal from "sweetalert2";
 
 const ActualizarProducto = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,9 @@ const ActualizarProducto = () => {
     colores: [],
   });
 
+  const [descripcionLength, setDescripcionLength] = useState(0);
+  const MAX_DESCRIPCION_LENGTH = 500;
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -29,13 +33,12 @@ const ActualizarProducto = () => {
         if (response.ok) {
           const productDetails = await response.json();
           console.log("Detalles del producto:", productDetails);
-    
+
           // Asegurémonos de que la estructura sea correcta antes de extraer los datos
           if (productDetails.detail) {
             console.log("Detalles del producto - imágenes:", productDetails.detail.imagen);
-    
+
             setInitialValues({
-              imagenes_producto: productDetails.detail.imagen || [],
               nombre_producto: productDetails.detail.name || "",
               descripcion: productDetails.detail.descripcion || "",
               precio: productDetails.detail.precio || 0,
@@ -53,7 +56,6 @@ const ActualizarProducto = () => {
         console.error("Error en la solicitud de detalles del producto:", error);
       }
     };
-    
 
     const fetchCategorias = async () => {
       try {
@@ -76,15 +78,15 @@ const ActualizarProducto = () => {
   const handleImageChange = (event, setFieldValue) => {
     const files = event.currentTarget.files;
     const imagenesArray = Array.from(files);
-  
+
     console.log("Nombres de las imágenes:", imagenesArray.map(file => file.name));
-  
+
     const currentImages = [...(previewImages || []), ...imagenesArray];
     setPreviewImages(currentImages);
-  
+
     setFieldValue("imagenes_producto", currentImages);
   };
-  
+
   const handleRemoveImage = (index, setFieldValue) => {
     const currentImages = [...previewImages];
     currentImages.splice(index, 1);
@@ -98,54 +100,76 @@ const ActualizarProducto = () => {
   const handleSubmit = async (values, actions) => {
     try {
       console.log("Valores del formulario al enviar:", values);
-      if (!values.imagenes_producto || values.imagenes_producto.length === 0) {
-        console.error("Debes adjuntar al menos una imagen al producto.");
-        return;
-      }
-
+  
       const productData = {
         nombre_producto: values.nombre_producto || "",
         id_categoria: values.id_categoria || "",
         descripcion: values.descripcion || "",
-        precio: values.precio || "",
+        precio: values.precio || 0,
         tallas: values.tallas || [],
         colores: values.colores || [],
       };
-
+  
       console.log("Datos del producto a actualizar:", productData);
-
+  
       const formData = new FormData();
+  
 
-      for (let i = 0; i < values.imagenes_producto.length; i++) {
-        formData.append("imagen_producto", values.imagenes_producto[i]);
-      }
-
+        if (values.imagenes_producto && values.imagenes_producto.length > 0) {
+          console.log("Imágenes a enviar:");
+          values.imagenes_producto.forEach((image, i) => {
+            console.log(`Imagen ${i + 1}:`, image);
+            formData.append("imagen_producto", image);
+          });
+        } 
+        console.log("Imagen del producto",values.imagenes_producto)
+  
       formData.append("data", JSON.stringify(productData));
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${id}`, {
-        method: "PUT",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+      const confirmation = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción actualizará el producto. ¿Deseas continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar',
       });
 
-      if (response.ok) {
-        console.log("Producto actualizado exitosamente");
-        actions.setSubmitting(false);
-        navigate("/admin/dashboard3");
-      } else {
-        const data = await response.json();
-        console.log("Error al actualizar el producto:", data.error || "Error desconocido");
-        actions.setStatus({
-          error: data.error || "Error al actualizar el producto. Verifica tus datos.",
+      if (confirmation.isConfirmed) {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${id}`, {
+          method: "PUT",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
         });
-        actions.setSubmitting(false);
+
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Producto actualizado exitosamente.',
+          });
+          actions.setSubmitting(false);
+          navigate("/admin/dashboard3");
+        } else {
+          const data = await response.json();
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.error || 'Error al actualizar el producto. Verifica tus datos.',
+          });
+          actions.setSubmitting(false);
+        }
       }
     } catch (error) {
       console.error("Error en la solicitud de actualización del producto:", error);
-      actions.setStatus({
-        error: "Error en la solicitud de actualización del producto: " + error.message,
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error en la solicitud de actualización del producto: ' + error.message,
       });
       actions.setSubmitting(false);
     }
@@ -164,66 +188,87 @@ const ActualizarProducto = () => {
             <Formik initialValues={initialValues} enableReinitialize={true} onSubmit={handleSubmit}>
               {({ isSubmitting, setFieldValue, status, values }) => (
                 <Form>
-<div className="form my-3">
-  <label htmlFor="imagenes_producto">Imágenes del Producto:</label>
-  <input
-    type="file"
-    name="imagenes_producto"
-    id="imagenes_producto"
-    onChange={(event) => handleImageChange(event, setFieldValue)}
-    multiple
-  />
-  <ErrorMessage name="imagenes_producto" component="div" className="text-danger" />
-  <div className="my-2">
-    <ul>
-      {previewImages.map((image, index) => (
-        <li key={index} className="d-flex align-items-center">
-          <span className="mr-2">{image.name}</span>
-          <button
-            type="button"
-            className="btn btn-sm btn-danger"
-            onClick={() => handleRemoveImage(index, setFieldValue)}
-          >
-            Eliminar
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-</div>
+                  <div className="form my-3">
+                    <label htmlFor="imagenes_producto">Imágenes del Producto:</label>
+                    <input
+                      type="file"
+                      name="imagenes_producto"
+                      id="imagenes_producto"
+                      onChange={(event) => handleImageChange(event, setFieldValue)}
+                      multiple
+                    />
+                    <ErrorMessage name="imagenes_producto" component="div" className="text-danger" />
+                    <div className="my-2">
+                      <ul>
+                        {previewImages.map((image, index) => (
+                          <li key={index} className="d-flex align-items-center">
+                            <span className="mr-2">{image.name}</span>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleRemoveImage(index, setFieldValue)}
+                            >
+                              Eliminar
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
 
                   <div className="form my-3">
-                <label htmlFor="nombre_producto">Nombre del Producto:</label>
-                <Field
-                  type="text"
-                  name="nombre_producto"
-                  className="form-control"
-                  placeholder="Ingresa el nombre del producto"
-                  value={values.nombre_producto}
-                  onChange={(event) => {
-                    console.log("Valor actual del campo Nombre del Producto:", event.target.value);
-                    setFieldValue("nombre_producto", event.target.value);
-                  }}
-                  onBlur={() => {
-                    console.log("Valor actual del campo Nombre del Producto al salir del campo:", values.nombre_producto.trim());
-                    setFieldValue("nombre_producto", values.nombre_producto.trim());
-                  }}
-                  required
-                />
-              </div>
-                  <div className="form my-3">
-                    <label htmlFor="descripcion">Descripción:</label>
+                    <label htmlFor="nombre_producto">Nombre del Producto:</label>
                     <Field
-                      as="textarea"
-                      name="descripcion"
+                      type="text"
+                      name="nombre_producto"
                       className="form-control"
-                      placeholder="Ingresa la descripción del producto"
-                      value={values.descripcion}
-                      onChange={(event) => setFieldValue("descripcion", event.target.value)}
-                      onBlur={() => setFieldValue("descripcion", values.descripcion.trim())}
+                      placeholder="Ingresa el nombre del producto"
+                      value={values.nombre_producto}
+                      onChange={(event) => {
+                        console.log("Valor actual del campo Nombre del Producto:", event.target.value);
+                        setFieldValue("nombre_producto", event.target.value);
+                      }}
+                      onBlur={() => {
+                        console.log("Valor actual del campo Nombre del Producto al salir del campo:", values.nombre_producto.trim());
+                        setFieldValue("nombre_producto", values.nombre_producto.trim());
+                      }}
                       required
                     />
+                    <ErrorMessage name="nombre_producto" component="div" className="text-danger" />
                   </div>
+
+                  <div className="form my-3">
+        <label htmlFor="descripcion">Descripción:</label>
+        <Field
+          as="textarea"
+          name="descripcion"
+          className="form-control"
+          placeholder="Ingresa la descripción del producto"
+          value={values.descripcion}
+          onChange={(event) => {
+            const newLength = event.target.value.length;
+            if (newLength <= MAX_DESCRIPCION_LENGTH) {
+              setFieldValue("descripcion", event.target.value);
+              setDescripcionLength(newLength);
+            }
+          }}
+          onBlur={() => {
+            setFieldValue("descripcion", values.descripcion.trim());
+          }}
+          required
+        />
+        <div className="text-right">
+          <small>
+            {descripcionLength}/{MAX_DESCRIPCION_LENGTH}
+          </small>
+        </div>
+        <ErrorMessage name="descripcion" component="div" className="text-danger" />
+        {descripcionLength > MAX_DESCRIPCION_LENGTH && (
+          <p className="text-danger">La descripción no puede tener más de {MAX_DESCRIPCION_LENGTH} caracteres.</p>
+        )}
+      </div>
+
+
                   <div className="form my-3">
                     <label htmlFor="precio">Precio:</label>
                     <Field
@@ -236,103 +281,169 @@ const ActualizarProducto = () => {
                       onBlur={() => setFieldValue("precio", values.precio.trim())}
                       required
                     />
+                    <ErrorMessage name="precio" component="div" className="text-danger" />
                   </div>
+
                   <div className="form my-3">
-                  <label htmlFor="id_categoria">Categoría:</label>
-                  <Field
-                  as="select"
-                  name="id_categoria"
-                  className="form-control"
-                  value={values.id_categoria}
-                  onChange={(event) => {
-                    console.log("Valor actual del campo Categoría:", event.target.value);
-                    setFieldValue("id_categoria", event.target.value);
-                  }}
-                  onBlur={() => {
-                    console.log("Valor actual del campo Categoría al salir del campo:", values.id_categoria.trim());
-                    setFieldValue("id_categoria", values.id_categoria.trim());
-                  }}
-                  required
-                >
-                  <option value="" disabled>Selecciona una categoría</option>
-                  {categorias.map((categoria) => (
-                    <option key={categoria.id} value={categoria.id}>
-                      {categoria.name}
-                    </option>
-                  ))}
-                </Field>
+                    <label htmlFor="id_categoria">Categoría:</label>
+                    <Field
+                      as="select"
+                      name="id_categoria"
+                      className="form-control"
+                      value={values.id_categoria}
+                      onChange={(event) => {
+                        console.log("Valor actual del campo Categoría:", event.target.value);
+                        setFieldValue("id_categoria", event.target.value);
+                      }}
+                      onBlur={() => {
+                        console.log("Valor actual del campo Categoría al salir del campo:", values.id_categoria.trim());
+                        setFieldValue("id_categoria", values.id_categoria.trim());
+                      }}
+                      required
+                    >
+                      <option value="" disabled>Selecciona una categoría</option>
+                      {categorias.map((categoria) => (
+                        <option key={categoria.id} value={categoria.id}>
+                          {categoria.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage name="id_categoria" component="div" className="text-danger" />
                   </div>
+
                   <div className="form my-3">
                     <label htmlFor="tallas">Tallas:</label>
                     <FieldArray name="tallas">
-                      {(arrayHelpers) => (
-                        <div>
-                          {arrayHelpers.form.values.tallas.map((talla, index) => (
-                            <div key={index} className="d-flex align-items-center">
-                              <Field
-                                type="text"
-                                name={`tallas.${index}.name`}
-                                className="form-control"
-                                placeholder={`Ingresa la talla #${index + 1}`}
-                                value={talla.name}
-                                onChange={(event) => arrayHelpers.replace(index, { name: event.target.value, status: "true" })}
-                                onBlur={() => arrayHelpers.replace(index, { name: talla.name.trim(), status: "true" })}
-                                required
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-danger ml-2"
-                                onClick={() => arrayHelpers.remove(index)}
-                              >
-                                Eliminar Talla
-                              </button>
-                            </div>
-                          ))}
-                          <button
-                            type="button"
-                            onClick={() => arrayHelpers.push({ name: "", status: "true" })}
-                          >
-                            Agregar Talla
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
-                  </div>
-                  <div className="form my-3">
-                    <label htmlFor="colores">Colores:</label>
-                    <FieldArray name="colores">
-                      {(arrayHelpers) => (
-                        <div>
-                          {arrayHelpers.form.values.colores.map((color, index) => (
-                            <div key={index} className="d-flex align-items-center">
-                              <Field
-                                type="text"
-                                name={`colores.${index}.name`}
-                                className="form-control"
-                                placeholder={`Ingresa el color #${index + 1}`}
-                                value={color.name}
-                                onChange={(event) => arrayHelpers.replace(index, { name: event.target.value, status: "true" })}
-                                onBlur={() => arrayHelpers.replace(index, { name: color.name.trim(), status: "true" })}
-                                required
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-danger ml-2"
-                                onClick={() => arrayHelpers.remove(index)}
-                              >
-                                Eliminar Color
-                              </button>
-                            </div>
-                          ))}
-                          <button
-                            type="button"
-                            onClick={() => arrayHelpers.push({ name: "", status: "true" })}
-                          >
-                            Agregar Color
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
+  {(arrayHelpers) => (
+    <div>
+      {arrayHelpers.form.values.tallas.map((talla, index) => (
+        <div key={index} className="d-flex align-items-center">
+          <Field
+            type="text"
+            name={`tallas.${index}.name`}
+            className="form-control"
+            placeholder={`Ingresa la talla #${index + 1}`}
+            value={talla.name}
+            onChange={(event) => {
+              const newTallaName = event.target.value.trim();
+              const isTallaRepeated = arrayHelpers.form.values.tallas.some(
+                (otherTalla, otherIndex) => otherIndex !== index && otherTalla.name === newTallaName
+              );
+              if (!isTallaRepeated) {
+                arrayHelpers.replace(index, { name: newTallaName, status: "true" });
+              }
+            }}
+            onBlur={() => arrayHelpers.replace(index, { name: talla.name.trim(), status: "true" })}
+            required
+          />
+          <button
+            type="button"
+            className="btn btn-sm btn-danger ml-2"
+            onClick={() => arrayHelpers.remove(index)}
+          >
+            Eliminar Talla
+          </button>
+        </div>
+      ))}
+   <button
+          type="button"
+          onClick={async () => {
+            const { value: newTallaName } = await Swal.fire({
+              input: 'select',  // Cambiado a un campo select
+              inputLabel: 'Selecciona una talla:',
+              inputOptions: {
+                'S': 'S',
+                'M': 'M',
+                'L': 'L',
+                'XL': 'XL',
+              },
+              inputValidator: (value) => {
+                if (!value) {
+                  return 'Debes seleccionar una talla';
+                }
+                const isTallaRepeated = arrayHelpers.form.values.tallas.some(
+                  (talla) => talla.name === value
+                );
+                if (isTallaRepeated) {
+                  return 'La talla ya existe. Selecciona una talla diferente.';
+                }
+                return null;
+              },
+            });
+            if (newTallaName) {
+              arrayHelpers.push({ name: newTallaName, status: "true" });
+            }
+          }}
+        >
+          Agregar Talla
+        </button>
+      </div>
+  )}
+</FieldArray>
+
+<FieldArray name="colores">
+  {(arrayHelpers) => (
+    <div>
+      {arrayHelpers.form.values.colores.map((color, index) => (
+        <div key={index} className="d-flex align-items-center">
+          <Field
+            type="text"
+            name={`colores.${index}.name`}
+            className="form-control"
+            placeholder={`Ingresa el color #${index + 1}`}
+            value={color.name}
+            onChange={(event) => {
+              const newColorName = event.target.value.trim();
+              const isColorRepeated = arrayHelpers.form.values.colores.some(
+                (otherColor, otherIndex) => otherIndex !== index && otherColor.name === newColorName
+              );
+              if (!isColorRepeated) {
+                arrayHelpers.replace(index, { name: newColorName, status: "true" });
+              }
+            }}
+            onBlur={() => arrayHelpers.replace(index, { name: color.name.trim(), status: "true" })}
+            required
+          />
+          <button
+            type="button"
+            className="btn btn-sm btn-danger ml-2"
+            onClick={() => arrayHelpers.remove(index)}
+          >
+            Eliminar Color
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={async () => {
+          const { value: newColorName } = await Swal.fire({
+            input: 'text',
+            inputLabel: 'Ingresa el nombre del color:',
+            inputPlaceholder: 'Ej. Rojo, Azul, Verde',
+            inputValidator: (value) => {
+              if (!value) {
+                return 'Debes ingresar el nombre del color';
+              }
+              const isColorRepeated = arrayHelpers.form.values.colores.some(
+                (color) => color.name === value
+              );
+              if (isColorRepeated) {
+                return 'El color ya existe. Ingresa un nombre diferente.';
+              }
+              return null;
+            },
+          });
+          if (newColorName) {
+            arrayHelpers.push({ name: newColorName, status: "true" });
+          }
+        }}
+      >
+        Agregar Color
+      </button>
+    </div>
+  )}
+</FieldArray>
+
                   </div>
 
                   <div className="text-center">

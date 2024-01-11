@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar3, Footer3 } from "../../components/administrador/administrador";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray, useField  } from "formik";
+import Swal from "sweetalert2";
 
 const NuevoProducto = () => {
   const dispatch = useDispatch();
@@ -58,7 +59,37 @@ const NuevoProducto = () => {
     try {
       // Verificar si hay imágenes adjuntas
       if (!values.imagenes_producto || values.imagenes_producto.length === 0) {
-        console.error("Debes adjuntar al menos una imagen al producto.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Debes adjuntar al menos una imagen al producto.',
+        });
+        actions.setSubmitting(false);
+        return;
+      }
+
+      // Validar que todos los campos estén llenos
+      const requiredFields = ['nombre_producto', 'descripcion', 'precio', 'id_categoria'];
+      const missingFields = requiredFields.filter(field => !values[field]);
+
+      if (missingFields.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Debes llenar todos los campos obligatorios. Faltan: ${missingFields.join(', ')}.`,
+        });
+        actions.setSubmitting(false);
+        return;
+      }
+
+      // Validar descripción (máximo 500 caracteres)
+      if (values.descripcion.length > 500) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'La descripción no puede exceder los 500 caracteres.',
+        });
+        actions.setSubmitting(false);
         return;
       }
 
@@ -92,12 +123,22 @@ const NuevoProducto = () => {
 
       if (response.ok) {
         console.log("Nuevo producto creado exitosamente");
+        Swal.fire({
+          icon: 'success',
+          title: 'Producto creado',
+          text: 'El nuevo producto ha sido creado exitosamente.',
+        });
         actions.setSubmitting(false);
         actions.resetForm();
         navigate("/admin/dashboard3");
       } else {
         const data = await response.json();
         console.log("Error al crear el nuevo producto:", data.error || "Error desconocido");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear el nuevo producto',
+          text: data.error || 'Este producto ya existe',
+        });
         actions.setStatus({
           error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
         });
@@ -105,6 +146,11 @@ const NuevoProducto = () => {
       }
     } catch (error) {
       console.error("Error en la solicitud de creación del nuevo producto:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error en la solicitud de creación del nuevo producto: ' + error.message,
+      });
       actions.setStatus({
         error: "Error en la solicitud de creación del nuevo producto: " + error.message,
       });
@@ -132,9 +178,19 @@ const NuevoProducto = () => {
                 tallas: [],
                 colores: [],
               }}
+              validate={(values) => {
+                const errors = {};
+            
+                if (!values.precio || isNaN(values.precio) || parseFloat(values.precio) < 0) {
+                  errors.precio = 'Ingresa un número válido mayor o igual a 0.';
+                } else if (!/^\d+(\.\d{1,2})?$/.test(values.precio.toString())) {
+                  errors.precio = 'Ingresa un número con hasta 2 decimales.';
+                }            
+                return errors;
+              }}
               onSubmit={handleSubmit}
             >
-              {({ isSubmitting, setFieldValue, status }) => (
+              {({ isSubmitting, setFieldValue, status, values }) => (
                 <Form>
                   <div className="form my-3">
                     <label htmlFor="imagenes_producto">Imágenes del Producto:</label>
@@ -168,29 +224,56 @@ const NuevoProducto = () => {
                       name="nombre_producto"
                       className="form-control"
                       placeholder="Ingresa el nombre del producto"
+                      minLength="5"
+                      maxLength="25"
                       required
                     />
                   </div>
                   <div className="form my-3">
-                    <label htmlFor="descripcion">Descripción:</label>
-                    <Field
-                      as="textarea"
-                      name="descripcion"
-                      className="form-control"
-                      placeholder="Ingresa la descripción del producto"
-                      required
-                    />
-                  </div>
-                  <div className="form my-3">
-                    <label htmlFor="precio">Precio:</label>
-                    <Field
-                      type="number"
-                      name="precio"
-                      className="form-control"
-                      placeholder="Ingresa el precio del producto"
-                      required
-                    />
-                  </div>
+        <label htmlFor="descripcion">Descripción:</label>
+        <Field
+          as="textarea"
+          name="descripcion"
+          className="form-control"
+          placeholder="Ingresa la descripción del producto"
+          required
+          maxLength={100}
+        />
+        <div className="text-right">
+          <small>{status && status.error && status.error.length}</small>
+          <small>{values.descripcion.length}/100</small>
+        </div>
+      </div>
+      <div className="form my-3">
+        <label htmlFor="precio">Precio:</label>
+        <Field
+          name="precio"
+          validate={(value) => {
+            let error;
+            if (!value || isNaN(value) || parseFloat(value) < 0) {
+              error = "Ingresa un número válido mayor o igual a 0.";
+            }
+            return error;
+          }}
+        >
+          {({ field, form }) => (
+            <>
+              <input
+                {...field}
+                type="text"
+                className={`form-control ${form.errors.precio && form.touched.precio ? "is-invalid" : ""}`}
+                placeholder="Ingresa el precio del producto"
+                onBlur={() => form.setFieldTouched("precio", true)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, '');
+                  form.setFieldValue("precio", value);
+                }}
+              />
+              <ErrorMessage name="precio" component="div" className="text-danger" />
+            </>
+          )}
+        </Field>
+      </div>
                   <div className="form my-3">
                     <label htmlFor="id_categoria">Categoría:</label>
                     <Field as="select" name="id_categoria" className="form-control" required>
@@ -215,6 +298,7 @@ const NuevoProducto = () => {
                                 className="form-control"
                                 placeholder={`Ingresa la talla #${index + 1}`}
                                 required
+                                disabled={true}
                               />
                               <button
                                 type="button"
@@ -225,15 +309,41 @@ const NuevoProducto = () => {
                               </button>
                             </div>
                           ))}
-                          <button
-                            type="button"
-                            onClick={() => arrayHelpers.push({ name: "", status: "true" })}
-                          >
-                            Agregar Talla
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
+   <button
+          type="button"
+          onClick={async () => {
+            const { value: newTallaName } = await Swal.fire({
+              input: 'select',  // Cambiado a un campo select
+              inputLabel: 'Selecciona una talla:',
+              inputOptions: {
+                'S': 'S',
+                'M': 'M',
+                'L': 'L',
+                'XL': 'XL',
+              },
+              inputValidator: (value) => {
+                if (!value) {
+                  return 'Debes seleccionar una talla';
+                }
+                const isTallaRepeated = arrayHelpers.form.values.tallas.some(
+                  (talla) => talla.name === value
+                );
+                if (isTallaRepeated) {
+                  return 'La talla ya existe. Selecciona una talla diferente.';
+                }
+                return null;
+              },
+            });
+            if (newTallaName) {
+              arrayHelpers.push({ name: newTallaName, status: "true" });
+            }
+          }}
+        >
+          Agregar Talla
+        </button>
+      </div>
+  )}
+</FieldArray>
                   </div>
                   <div className="form my-3">
                     <label htmlFor="colores">Colores:</label>
@@ -248,6 +358,8 @@ const NuevoProducto = () => {
                                 className="form-control"
                                 placeholder={`Ingresa el color #${index + 1}`}
                                 required
+                                disabled={true}
+
                               />
                               <button
                                 type="button"
@@ -258,15 +370,36 @@ const NuevoProducto = () => {
                               </button>
                             </div>
                           ))}
-                          <button
-                            type="button"
-                            onClick={() => arrayHelpers.push({ name: "", status: "true" })}
-                          >
-                            Agregar Color
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
+      <button
+        type="button"
+        onClick={async () => {
+          const { value: newColorName } = await Swal.fire({
+            input: 'text',
+            inputLabel: 'Ingresa el nombre del color:',
+            inputPlaceholder: 'Ej. Rojo, Azul, Verde',
+            inputValidator: (value) => {
+              if (!value) {
+                return 'Debes ingresar el nombre del color';
+              }
+              const isColorRepeated = arrayHelpers.form.values.colores.some(
+                (color) => color.name === value
+              );
+              if (isColorRepeated) {
+                return 'El color ya existe. Ingresa un nombre diferente.';
+              }
+              return null;
+            },
+          });
+          if (newColorName) {
+            arrayHelpers.push({ name: newColorName, status: "true" });
+          }
+        }}
+      >
+        Agregar Color
+      </button>
+    </div>
+  )}
+</FieldArray>
                   </div>
 
                   <div className="text-center">

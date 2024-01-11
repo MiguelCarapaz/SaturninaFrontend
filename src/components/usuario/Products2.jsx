@@ -3,7 +3,9 @@ import { useDispatch } from "react-redux";
 import * as actions from "../../redux/action/index";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import Swal from 'sweetalert2';
 import { Link } from "react-router-dom";
+
 
 const Products2 = () => {
   const [data, setData] = useState([]);
@@ -15,46 +17,57 @@ const Products2 = () => {
   const dispatch = useDispatch();
 
   const addProductToCart = (product) => {
-    const { id, name, precio } = product;
+    const { id, name, precio, tallas, colores } = product;
     const { size, color } = selectedOptions[id] || {};
-
-    if (size && color) {
+  
+    const hasTallas = Array.isArray(tallas) && tallas.length > 0;
+    const hasColores = Array.isArray(colores) && colores.length > 0;
+  
+    if (
+      (!hasTallas || (hasTallas && size)) &&
+      (!hasColores || (hasColores && color))
+    ) {
       dispatch(
         actions.agregarAlCarrito({
           ...product,
           id_producto: id,
           nombre_producto: name,
-          talla: size,
-          color: color,
+          talla: hasTallas ? size : "", 
+          color: hasColores ? color : "", 
         })
       );
     } else {
-      console.error("Por favor, selecciona talla y color.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Por favor, selecciona talla y/o color antes de añadir al carrito.',
+      });
     }
   };
+  
 
   useEffect(() => {
     let componentMounted = true;
-
+  
     const fetchData = async () => {
       try {
-        const productsResponse = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/products`
-        );
+        const productsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
         const productsResult = await productsResponse.json();
-
+  
         if (componentMounted) {
-          setData(productsResult.detail);
+          if (productsResult.detail) {
+            setData(productsResult.detail);
+          } else {
+            console.error("No hay productos disponibles.");
+          }
         }
       } catch (error) {
         console.error("Error fetching products:", error);
       }
-
+  
       try {
-        const categoriesResponse = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/category`
-        );
-
+        const categoriesResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/category`);
+  
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
           setCategories([
@@ -62,22 +75,19 @@ const Products2 = () => {
             ...categoriesData.detail,
           ]);
         } else {
-          console.error(
-            "Error fetching categories:",
-            categoriesResponse.status
-          );
+          console.error("Error fetching categories:", categoriesResponse.status);
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
-
+  
       if (componentMounted) {
         setLoading(false);
       }
     };
-
+  
     fetchData();
-
+  
     return () => {
       componentMounted = false;
     };
@@ -108,13 +118,13 @@ const Products2 = () => {
   const ShowProducts = () => {
     const [searchInput, setSearchInput] = useState("");
 
-    const filteredProducts = data.filter(
-      (product) =>
-        (currentCategory === "category:todos" ||
-          product.category === currentCategory) &&
-        (searchInput === "" ||
-          product.name.toLowerCase().includes(searchInput.toLowerCase()))
-    );
+    const filteredProducts = Array.isArray(data)
+    ? data.filter(
+        (product) =>
+          (currentCategory === "category:todos" || product.category === currentCategory) &&
+          (searchInput === "" || product.name.toLowerCase().includes(searchInput.toLowerCase()))
+      )
+    : [];
 
     const indexOfLastProduct = currentPage * 6;
     const indexOfFirstProduct = indexOfLastProduct - 6;

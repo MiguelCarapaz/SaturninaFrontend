@@ -27,10 +27,6 @@ const Categorias = () => {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
         setCategorias(response.data.detail);
       } catch (error) {
-        console.error("Error al obtener las categorías:", error);
-        setError(
-          "No se pudo obtener la lista de categorías. Por favor, inténtalo de nuevo más tarde."
-        );
       }
     };
 
@@ -45,19 +41,24 @@ const Categorias = () => {
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar',
       });
-  
+
       if (confirmDelete.isConfirmed) {
         await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/category/${idCategoria}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-  
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/category`);
-        setCategorias(response.data.detail);
-  
-        // Utiliza SweetAlert2 para mostrar el mensaje de éxito
+
+        // Actualizar localmente la lista de categorías eliminando la categoría
+        setCategorias((prevCategorias) =>
+          prevCategorias.filter((categoria) => categoria.id !== idCategoria)
+        );
+
         Swal.fire('Categoría eliminada exitosamente', '', 'success');
+
+        if (categorias.length === 0) {
+          setError('No hay categorías disponibles. Puedes agregar una nueva categoría.');
+        }
       }
     } catch (error) {
       if (error.response && error.response.status === 403) {
@@ -203,6 +204,11 @@ const Categorias = () => {
           Categorias
         </h1>
         <hr />
+        {categorias.length === 0 && (
+          <div className="alert alert-info mt-3" role="alert">
+            No hay categorías disponibles. Puedes agregar una nueva categoría.
+          </div>
+        )}
 
         <div className="row">
           {categorias.map((categoria) => (
@@ -266,6 +272,8 @@ const Categorias = () => {
                           name="nombre_categoria"
                           className="form-control"
                           id="nombre_categoria"
+                          minLength="5"
+                          maxLength="20"
                         />
                         <ErrorMessage
                           name="nombre_categoria"
