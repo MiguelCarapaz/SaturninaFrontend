@@ -34,12 +34,17 @@ const NuevoProducto = () => {
   const handleImageChange = (event, setFieldValue) => {
     const files = event.currentTarget.files;
     const imagenesArray = Array.from(files);
-
-    // Obtener imágenes existentes y agregar las nuevas
     const currentImages = [...(previewImages || []), ...imagenesArray];
+  
+    if (currentImages.length > 4) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Solo se permiten hasta 4 imágenes por producto.',
+      });
+      return;
+    }
     setPreviewImages(currentImages);
-
-    // Mostrar nombres de archivos seleccionados
     const names = currentImages.map((file) => file.name);
     setFieldValue("imagenes_producto", currentImages);
   };
@@ -181,8 +186,8 @@ const NuevoProducto = () => {
               validate={(values) => {
                 const errors = {};
             
-                if (!values.precio || isNaN(values.precio) || parseFloat(values.precio) < 0) {
-                  errors.precio = 'Ingresa un número válido mayor o igual a 0.';
+                if (!values.precio || isNaN(values.precio) || parseFloat(values.precio) < 1) {
+                  errors.precio = 'Ingresa un número válido mayor o igual a 1.';
                 } else if (!/^\d+(\.\d{1,2})?$/.test(values.precio.toString())) {
                   errors.precio = 'Ingresa un número con hasta 2 decimales.';
                 }            
@@ -250,8 +255,8 @@ const NuevoProducto = () => {
           name="precio"
           validate={(value) => {
             let error;
-            if (!value || isNaN(value) || parseFloat(value) < 0) {
-              error = "Ingresa un número válido mayor o igual a 0.";
+            if (!value || isNaN(value) || parseFloat(value) < 1) {
+              error = "Ingresa un número válido mayor o igual a 1.";
             }
             return error;
           }}

@@ -273,7 +273,7 @@ const Categorias = () => {
                           className="form-control"
                           id="nombre_categoria"
                           minLength="5"
-                          maxLength="20"
+                          maxLength="30"
                         />
                         <ErrorMessage
                           name="nombre_categoria"

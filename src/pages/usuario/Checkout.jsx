@@ -259,7 +259,7 @@ const Checkout = () => {
                         )}
                       </div>
                       <div className="form my-3">
-                        <label htmlFor="descripcion">Descripción:</label>
+                        <label htmlFor="descripcion">Descripción del orden de pago:</label>
                         <Field
                           as="textarea"
                           name="descripcion"
@@ -317,7 +317,7 @@ const Checkout = () => {
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
                         {item.nombre_producto} ({item.cantidad}) - Talla: {item.talla || ""}, Color: {item.color || ""}
-                        <span>${Math.round(item.precio * item.cantidad)}</span>
+                        <span>${item.precio * item.cantidad}</span>
                       </li>
                     ))}
                     <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
@@ -325,7 +325,7 @@ const Checkout = () => {
                         <strong>Total</strong>
                       </div>
                       <span>
-                        <strong>${Math.round(calculateTotalOrder(state))}</strong>
+                        <strong>${calculateTotalOrder(state)}</strong>
                       </span>
                     </li>
                   </div>

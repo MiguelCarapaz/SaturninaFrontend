@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { Navbar, Footer } from '../../src/components/Dashboard';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const CambiarContrasena = () => {
-  const { token } = useParams();
   const [mensaje, setMensaje] = useState({});
-  const [tokenback, setTokenBack] = useState(false);
+  const [tokenVerified, setTokenVerified] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [checkPassword, setCheckPassword] = useState('');
 
-  const urlRecuperar = `${import.meta.env.VITE_BACKEND_URL}/api/v1/recover-password/${token}`;
-  const urlCambiar = `${import.meta.env.VITE_BACKEND_URL}/api/v1/new-password/${token}`;
+  const { token } = useParams();
+  const urlRecuperar = `${import.meta.env.VITE_API_BASE_URL}/recover-password/${token}`;
+  const urlCambiar = `${import.meta.env.VITE_API_BASE_URL}/new-password/${token}`;
 
   const verifyToken = async () => {
     try {
       const respuesta = await axios.get(urlRecuperar);
-      setTokenBack(true);
+      setTokenVerified(true);
       setMensaje({ respuesta: respuesta.data.msg, tipo: true });
-  
-      // Aquí agregamos la redirección después de la confirmación del token
-      // Puedes ajustar la ruta según tu estructura de rutas
-      window.location.href = "/cambiarcontrasena";
     } catch (error) {
       setMensaje({ respuesta: error.response.data.msg, tipo: false });
     }
@@ -28,24 +28,41 @@ const CambiarContrasena = () => {
     verifyToken();
   }, []);
 
-  const [form, setForm] = useState({
-    new_password: "",
-    check_password: "",
-  });
-
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.name === 'new_password') {
+      setNewPassword(e.target.value);
+    } else if (e.target.name === 'check_password') {
+      setCheckPassword(e.target.value);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (newPassword !== checkPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden.',
+      });
+      return;
+    }
+
     try {
-      const respuesta = await axios.post(urlCambiar, form);
-      setForm({});
+      const respuesta = await axios.post(urlCambiar, { new_password: newPassword, check_password: checkPassword });
+      setNewPassword('');
+      setCheckPassword('');
       setMensaje({ respuesta: respuesta.data.msg, tipo: true });
+
+      // Redirigir al usuario al login después de cambiar la contraseña con éxito
+      if (respuesta.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Contraseña cambiada con éxito',
+        }).then(() => {
+          window.location.href = "/login";
+        });
+      }
     } catch (error) {
       setMensaje({ respuesta: error.response.data.msg, tipo: false });
     }
@@ -53,52 +70,59 @@ const CambiarContrasena = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center">
-        {Object.keys(mensaje).length > 0 && (
-          <p className={mensaje.tipo ? "text-green-500" : "text-red-500"}>
-            {mensaje.respuesta}
-          </p>
-        )}
-        <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-gray-500">
-          Bienvenido de nuevo
-        </h1>
-        <small className="text-gray-400 block my-4 text-sm">
-          Por favor ingresa tus datos
-        </small>
-        {tokenback && (
-          <form className="w-full" onSubmit={handleSubmit}>
-            <div className="mb-1">
-              <label className="mb-2 block text-sm font-semibold">Nueva Contraseña</label>
-              <input
-                type="password"
-                placeholder="Ingresa tu nueva contraseña"
-                className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
-                value={form.new_password || ""}
-                name="new_password"
-                onChange={handleChange}
-              />
-              <label className="mb-2 block text-sm font-semibold">
-                Confirmar Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                placeholder="Repite tu nueva contraseña"
-                className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
-                value={form.check_password || ""}
-                name="check_password"
-                onChange={handleChange}
-              />
+      <Navbar />
+      <div className="container my-5 py-2">
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <h2 className="text-center mb-4">Recuperar Contraseña</h2>
+            <div className="card mb-4">
+              <div className="card-body">
+                {Object.keys(mensaje).length > 0 && (
+                  <p className={mensaje.tipo ? 'text-green-500' : 'text-red-500'}>
+                    {mensaje.respuesta}
+                  </p>
+                )}
+                {tokenVerified && (
+                  <form className="w-full" onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                      <label>Nueva Contraseña:</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        name="new_password"
+                        value={newPassword}
+                        minLength="9"
+                        maxLength="18"
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label>Confirmar Contraseña:</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        name="check_password"
+                        value={checkPassword}
+                        minLength="9"
+                        maxLength="18"
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="text-center">
+                      <button className="btn btn-success mx-2" type="submit">
+                        Cambiar Contraseña
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
-            <div className="mb-3">
-            <div className="mb-3">
-            <button className="bg-gray-600 text-slate-300 border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-gray-900 hover:text-white">
-              Enviar
-            </button>
           </div>
-            </div>
-          </form>
-        )}
+        </div>
       </div>
+      <Footer />
     </>
   );
 };

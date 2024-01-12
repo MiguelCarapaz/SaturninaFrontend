@@ -16,10 +16,6 @@ const Product3 = () => {
 
   const dispatch = useDispatch();
 
-  const addProduct = (product) => {
-    dispatch(addCart(product));
-  };
-
   useEffect(() => {
     const getProduct = async () => {
       setLoading(true);
@@ -79,7 +75,7 @@ const Product3 = () => {
   };
 
   const ShowProduct = () => {
-    const categoryName = categories.find(cat => cat.id === product.category)?.name || "Desconocida";
+    const categoryName = categories.find((cat) => cat.id === product.category)?.name || "Desconocida";
 
     return (
       <>
@@ -89,18 +85,24 @@ const Product3 = () => {
               <div className="image-container">
                 <img
                   className="img-fluid"
-                  src={product.imagen?.[currentImageIndex]?.secure_url || ''}
+                  src={product.imagen?.[currentImageIndex]?.secure_url || ""}
                   alt={product.name}
                 />
                 {product.imagen && product.imagen.length > 1 && (
                   <>
                     <FaChevronLeft
                       className="arrow left-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length)}
+                      onClick={() =>
+                        setCurrentImageIndex(
+                          (prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length
+                        )
+                      }
                     />
                     <FaChevronRight
                       className="arrow right-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)}
+                      onClick={() =>
+                        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)
+                      }
                     />
                   </>
                 )}
@@ -110,7 +112,7 @@ const Product3 = () => {
                   {product.imagen.map((img, index) => (
                     <img
                       key={index}
-                      className={`thumbnail ${index === currentImageIndex ? 'selected' : ''}`}
+                      className={`thumbnail ${index === currentImageIndex ? "selected" : ""}`}
                       src={img.secure_url}
                       alt={product.name}
                       onClick={() => setCurrentImageIndex(index)}
@@ -122,8 +124,34 @@ const Product3 = () => {
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
               <h1 className="display-5">{product.name}</h1>
-              <h3 className="display-6  my-4">${product.precio}</h3>
+              <h3 className="display-6 my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
+
+              {/* Mostrar colores si existen */}
+              {product.colores && product.colores.length > 0 && (
+                <div>
+                  <h5>Colores:</h5>
+                  <ul>
+                    {product.colores.map((color, index) => (
+                      <li key={index}>{color.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Mostrar tallas si existen */}
+              {product.tallas && product.tallas.length > 0 && (
+                <div>
+                  <h5>Tallas:</h5>
+                  <ul>
+                    {product.tallas.map((talla, index) => (
+                      <li key={index}>{talla.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+        
             </div>
           </div>
         </div>
@@ -183,8 +211,8 @@ const Product3 = () => {
         }
         
         .img-fluid {
-          width: 320px; 
-          height: 320px; 
+          width: 320px;
+          height: 320px;
         }
       `}</style>
     </>

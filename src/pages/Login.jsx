@@ -1,14 +1,14 @@
-import { useNavigate } from 'react-router-dom';
 import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Footer, Navbar } from '../components/Dashboard';
 import { AuthContext } from '../context/AuthProvider';
+import Swal from 'sweetalert2';
+import { Formik, Form, Field } from 'formik';
 
 const Login = () => {
   const { auth, setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Define un estado para almacenar los datos del usuario
   const [userData, setUserData] = useState(null);
   const [userEmail, setUserEmail] = useState('');
 
@@ -19,25 +19,21 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Verificar el token de autenticación al cargar la página
     checkAuthStatus();
-  }, [setAuth, navigate]); // Agrega las dependencias correctas
+  }, [setAuth, navigate]);
 
-  // Función para verificar el token de autenticación
   function checkAuthStatus() {
     const authToken = localStorage.getItem('authToken');
     if (authToken && !auth.authToken) {
-      // Agrega una verificación adicional
       setAuth({ authToken });
     }
   }
 
   useEffect(() => {
-    // Redirige después de verificar el estado de autenticación
     if (auth.authToken) {
-      console.log('Correo electrónico en la lógica de redirección:', userEmail);
       if (userEmail === 'miguelotaku01@gmail.com') {
         navigate('/admin/dashboard3');
       } else if (userEmail === 'miguelcarapaz01@gmail.com') {
@@ -53,8 +49,11 @@ const Login = () => {
     });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleTogglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleLogin = async (values, actions) => {
     setLoading(true);
 
     try {
@@ -63,35 +62,29 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       });
 
       if (response.ok) {
         const data = await response.json();
         const authToken = data.detail.token;
         const id = data.detail.id;
-        const role = data.detail.rol; // Nuevo: obtén el rol del usuario
-        const userEmail = data.detail.email; // Nuevo: obtén el correo electrónico del usuario
+        const role = data.detail.rol;
+        const userEmail = data.detail.email;
 
-        // Guarda todos los datos del usuario
         setUserData(data.detail);
         setUserEmail(userEmail);
 
-        // Verifica si se obtuvo un token válido
         if (authToken) {
           localStorage.setItem('authToken', authToken);
-          localStorage.setItem('id', id); // Almacena el ID por separado
+          localStorage.setItem('id', id);
           setAuth({ authToken });
 
-          // Determina la ruta de redirección según el rol
           if (role === 'rol:74rvq7jatzo6ac19mc79') {
-            // Administrador
             navigate('/admin/dashboard3');
           } else if (role === 'rol:vuqn7k4vw0m1a3wt7fkb') {
-            // Usuario
             navigate('/usuario/dashboard2');
           } else {
-            // Otros roles o manejar de otra manera
             console.error('Rol desconocido:', role);
           }
 
@@ -104,13 +97,22 @@ const Login = () => {
         }
       } else {
         const data = await response.json();
-        setError(data.error || 'Correo o contraseña incorrectos. Verifica tus datos.');
+        if (response.status === 409) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Necesitas activar tu cuenta. Revisa tu correo para confirmar.',
+          });
+        } else {
+          setError(data.error || 'Correo o contraseña incorrectos. Verifica tus datos.');
+        }
       }
     } catch (error) {
       setError('Error en la solicitud de inicio de sesión: ' + error.message);
     }
 
     setLoading(false);
+    actions.setSubmitting(false);
   };
 
   return (
@@ -127,34 +129,53 @@ const Login = () => {
         <hr />
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <form onSubmit={handleLogin}>
-              <div className="my-3">
-                <label htmlFor="email">Correo electrónico</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="form-control"
-                  id="email"
-                  placeholder="ejemplo@gmail.com"
-                  required
-                />
-              </div>
-              <div className="my-3">
-                <label htmlFor="password">Contraseña</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="form-control"
-                  id="password"
-                  placeholder="*******"
-                  required
-                />
-              </div>
-              <div className="my-3">
+            <Formik
+              initialValues={{
+                email: '',
+                password: '',
+                showPassword: false,
+              }}
+              onSubmit={handleLogin}
+            >
+              {({ isSubmitting, status, values, setFieldValue }) => (
+                <Form>
+                  <div className="my-3">
+                    <label htmlFor="email">Correo electrónico</label>
+                    <Field
+                      type="email"
+                      name="email"
+                      className="form-control"
+                      id="email"
+                      placeholder="ejemplo@gmail.com"
+                      required
+                    />
+                  </div>
+                  <div className="my-3">
+                    <label htmlFor="password">Contraseña</label>
+                    <div className="input-group">
+                      <Field
+                        type={values.showPassword ? 'text' : 'password'}
+                        name="password"
+                        className="form-control"
+                        id="password"
+                        placeholder="*********"
+                        required
+                      />
+                      <div className="input-group-append">
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={() => setFieldValue('showPassword', !values.showPassword)}
+                        >
+                          {values.showPassword ? 'Ocultar' : 'Mostrar'}
+                        </button>
+                      </div>
+                    </div>
+                    {status && status.error && status.error.password && (
+                      <p className="text-danger">{status.error.password}</p>
+                    )}
+                  </div>
+                  <div className="my-3">
                 <p>
                   ¿No tienes una cuenta?{' '}
                   <Link to="/register" className="text-decoration-underline text-info">
@@ -170,13 +191,19 @@ const Login = () => {
                   </Link>
                 </p>
               </div>
-              <div className="text-center">
-                <button className="my-2 mx-auto btn btn-dark" disabled={loading}>
-                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                </button>
-              </div>
-            </form>
-            {error && <p className="text-danger text-center">{error}</p>}
+                  <div className="text-center">
+                    <button
+                      type="submit"
+                      className="my-2 mx-auto btn btn-dark"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                    </button>
+                  </div>
+                  {error && <p className="text-danger text-center">{error}</p>}
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       </div>

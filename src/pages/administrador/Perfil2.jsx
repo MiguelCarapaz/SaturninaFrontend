@@ -13,6 +13,11 @@ const Perfil2 = () => {
   const [newPassword, setNewPassword] = useState('');
   const [checkPassword, setCheckPassword] = useState('');
   const [isChangePasswordMode, setIsChangePasswordMode] = useState(false);
+  const [passwordValidationMessage, setPasswordValidationMessage] = useState('');
+  const [phoneValidationMessage, setPhoneValidationMessage] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showCheckPassword, setShowCheckPassword] = useState(false);
+
 
 
   useEffect(() => {
@@ -35,7 +40,7 @@ const Perfil2 = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'nombre' || name === 'apellido') {
-      const trimmedValue = value.slice(0, 20);
+      const trimmedValue = value.slice(0, 10);
       setPerfilData({
         ...perfilData,
         [name]: trimmedValue,
@@ -47,12 +52,27 @@ const Perfil2 = () => {
         ...perfilData,
         [name]: trimmedValue,
       });
+
+      if (trimmedValue.length !== 10) {
+        setPhoneValidationMessage('El número de teléfono debe tener exactamente 10 dígitos.');
+      } else {
+        setPhoneValidationMessage('');
+      }
     } else {
       setPerfilData({
         ...perfilData,
         [name]: value,
       });
+      setPhoneValidationMessage('');
     }
+  };
+
+  const handleToggleNewPassword = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const handleToggleCheckPassword = () => {
+    setShowCheckPassword(!showCheckPassword);
   };
 
   const handleUpdate = () => {
@@ -87,8 +107,6 @@ const Perfil2 = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setIsEditMode(false);
-
-        // Resto del código para la actualización...
         const updatedData = {
           nombre: perfilData.nombre,
           apellido: perfilData.apellido,
@@ -115,7 +133,17 @@ const Perfil2 = () => {
                 text: 'Datos actualizados con éxito.',
               });
             } else {
-              console.error('Error al actualizar los datos');
+              if (response.status === 422) {
+                return response.json().then((data) => {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error al actualizar los datos',
+                    text: data.error || 'Error al actualizar los datos. Datos incorrectos.',
+                  });
+                });
+              } else {
+                console.error('Error al actualizar los datos');
+              }
             }
           })
           .catch((error) => {
@@ -166,6 +194,12 @@ const Perfil2 = () => {
             icon: 'success',
             title: 'Éxito',
             text: 'Contraseña actualizada con éxito.',
+          });
+        } else if (response.status === 406) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'La contraseña es igual a la anterior.',
           });
         } else {
           console.error('Error al actualizar la contraseña');
@@ -223,52 +257,69 @@ const Perfil2 = () => {
                         <div className="form-control-plaintext">{perfilData.email}</div>
                       )}
                     </div>
-                    <div className="mb-3">
-                      <label>Nombre:</label>
-                      {isEditMode ? (
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="nombre"
-                          minLength="3"
-                          maxLength="10"
-                          value={perfilData.nombre}
-                          onChange={handleChange}
-                        />
-                      ) : (
-                        <div className="form-control-plaintext">{perfilData.nombre}</div>
-                      )}
-                    </div>
-                    <div className="mb-3">
-                      <label>Apellido:</label>
-                      {isEditMode ? (
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="apellido"
-                          minLength="3"
-                          maxLength="10"
-                          value={perfilData.apellido}
-                          onChange={handleChange}
-                        />
-                      ) : (
-                        <div className="form-control-plaintext">{perfilData.apellido}</div>
-                      )}
-                    </div>
-                    <div className="mb-3">
-                      <label>Teléfono:</label>
-                      {isEditMode ? (
-                        <input
-                          type="tel"
-                          className="form-control"
-                          name="telefono"
-                          value={perfilData.telefono}
-                          onChange={handleChange}
-                        />
-                      ) : (
-                        <div className="form-control-plaintext">{perfilData.telefono}</div>
-                      )}
-                    </div>
+       <div className="mb-3">
+        <label>Nombre:</label>
+        {isEditMode ? (
+          <>
+            <input
+              type="text"
+              className="form-control"
+              name="nombre"
+              value={perfilData.nombre}
+              minLength="3"
+              maxLength="10"
+              onChange={handleChange}
+            />
+            {perfilData.nombre.length < 3 && (
+              <small className="text-danger">El nombre debe tener al menos 3 caracteres.</small>
+            )}
+          </>
+        ) : (
+          <div className="form-control-plaintext">{perfilData.nombre}</div>
+        )}
+      </div>
+
+      <div className="mb-3">
+        <label>Apellido:</label>
+        {isEditMode ? (
+          <>
+            <input
+              type="text"
+              className="form-control"
+              name="apellido"
+              minLength="3"
+              maxLength="10"
+              value={perfilData.apellido}
+              onChange={handleChange}
+            />
+            {perfilData.apellido.length < 3 && (
+              <small className="text-danger">El apellido debe tener al menos 3 caracteres.</small>
+            )}
+          </>
+        ) : (
+          <div className="form-control-plaintext">{perfilData.apellido}</div>
+        )}
+      </div>
+
+      <div className="mb-3">
+        <label>Teléfono:</label>
+        {isEditMode ? (
+          <>
+            <input
+              type="tel"
+              className="form-control"
+              name="telefono"
+              value={perfilData.telefono}
+              onChange={handleChange}
+            />
+            {phoneValidationMessage && (
+              <small className="text-danger">{phoneValidationMessage}</small>
+            )}
+          </>
+        ) : (
+          <div className="form-control-plaintext">{perfilData.telefono}</div>
+        )}
+      </div>
                     <div className="text-center">
                       {isEditMode ? (
                         <>
@@ -289,19 +340,26 @@ const Perfil2 = () => {
                 )}
                 {(isEditMode || isChangePasswordMode) && (
                   <>
-   <div className="mb-3">
-  <label>Nueva Contraseña:</label>
-  {isEditMode ? (
-    <>
-      <input
-        type="password"
-        className="form-control"
-        name="newPassword"
-        value={newPassword}
-        minLength="9"
-        maxLength= "18"
-        onChange={handleChangePassword}
-      />
+                <div className="mb-3">
+                      <label>Nueva Contraseña:</label>
+                      {isEditMode ? (
+                        <>
+                          <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            className="form-control"
+                            name="newPassword"
+                            value={newPassword}
+                            minLength="9"
+                            maxLength="18"
+                            onChange={handleChangePassword}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={handleToggleNewPassword}
+                          >
+                            {showNewPassword ? 'Ocultar' : 'Mostrar'}
+                          </button>
       {newPassword.length > 18 || newPassword.length < 9 || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword) ? (
         <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
       ) : (
@@ -314,18 +372,25 @@ const Perfil2 = () => {
 </div>
 
 <div className="mb-3">
-  <label>Confirmar Contraseña:</label>
-  {isEditMode ? (
-    <>
-      <input
-        type="password"
-        className="form-control"
-        name="checkPassword"
-        value={checkPassword}
-        minLength="9"
-        maxLength= "18"
-        onChange={handleChangePassword}
-      />
+                      <label>Confirmar Contraseña:</label>
+                      {isEditMode ? (
+                        <>
+                          <input
+                            type={showCheckPassword ? 'text' : 'password'}
+                            className="form-control"
+                            name="checkPassword"
+                            value={checkPassword}
+                            minLength="9"
+                            maxLength="18"
+                            onChange={handleChangePassword}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={handleToggleCheckPassword}
+                          >
+                            {showCheckPassword ? 'Ocultar' : 'Mostrar'}
+                          </button>
       {checkPassword.length > 18 || checkPassword.length < 9 || !/[A-Z]/.test(checkPassword) || !/\d/.test(checkPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(checkPassword) ? (
         <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
       ) : (
