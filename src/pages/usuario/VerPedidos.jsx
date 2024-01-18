@@ -15,6 +15,8 @@ const VerPedidos = () => {
     };
   }, []);
 
+  
+
   useEffect(() => {
     const editForm = document.getElementById('editForm');
     if (editForm) {
@@ -38,6 +40,14 @@ const VerPedidos = () => {
 
   const itemsPerPage = 5;
 
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [currentTab]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [searchTerm]);
+  
   useEffect(() => {
     const fetchPedidos = async () => {
       try {
@@ -67,6 +77,9 @@ const VerPedidos = () => {
         console.error('Error al obtener los pedidos', error);
       }
     };
+
+    
+
 
     fetchPedidos();
   }, [auth, updateTrigger]);
@@ -107,6 +120,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         <p><strong>Email:</strong> ${pedido.id_orden && pedido.id_orden.email}</p>
         <p><strong>Teléfono:</strong> ${pedido.id_orden && pedido.id_orden.telefono}</p>
         <p><strong>Dirección:</strong> ${pedido.id_orden && pedido.id_orden.direccion}</p>
+        <p><strong>Descripción del Pedido:</strong> ${pedido.id_orden && pedido.id_orden.descripcion}</p>
         <p><strong>Total:</strong> $${pedido.id_producto.precio}</p>
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Motivo:</strong> ${pedido.descripcion}</p>

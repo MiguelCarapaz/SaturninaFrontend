@@ -13,7 +13,39 @@ const Checkout = () => {
   const navigate = useNavigate();
   const state = useSelector((state) => state.handleCart);
   const userId = localStorage.getItem("id");
+  const [isEditMode, setIsEditMode] = useState(true);
 
+  const [userProfileData, setUserProfileData] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "",
+  });
+
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("id");
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/user/${storedId}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Datos del perfil:", data);
+        setUserProfileData({
+          nombre: data.detail.nombre || "",
+          apellido: data.detail.apellido || "",
+          email: data.detail.email || "",
+          telefono: data.detail.telefono || "",
+        });
+      })
+      .catch((error) => {
+        console.error("Error al obtener los datos del perfil:", error);
+      });
+  }, [authToken]);
+
+  
   const handleImageChange = (event, setFieldValue) => {
     setFieldValue("transfer_image", event.currentTarget.files[0]);
   };
@@ -27,6 +59,10 @@ const Checkout = () => {
   };
 
   const handleChange = (e, setFieldValue) => {
+    if (!isEditMode) {
+      return; 
+    }
+
     const { name, value } = e.target;
 
     if (name === "nombre" || name === "apellido") {
@@ -42,7 +78,7 @@ const Checkout = () => {
   };
 
   const handleConfirmPedido = async (values, { setSubmitting, setFieldValue, setStatus }) => {
-    // Validar que todos los campos obligatorios estén completos
+    console.log("values", values)
     const requiredFields = ["nombre", "apellido", "direccion", "email", "telefono", "descripcion", "transfer_image"];
     const incompleteFields = requiredFields.filter((field) => !values[field]);
 
@@ -95,14 +131,13 @@ const Checkout = () => {
   const handleSubmit = async (values, { setSubmitting, setFieldValue, setStatus }) => {
     try {
       const productsData = state
-        .filter((item) => item.talla || item.color)
         .map((item) => ({
           id_producto: item.id,
           cantidad: item.cantidad,
-          talla: item.talla || null, 
-          color: item.color || null, 
+          talla: item.talla !== "" ? item.talla : null, 
+          color: item.color !== "" ? item.color : null, 
         }));
-
+  
       const orderData = {
         user_id: userId,
         price_order: calculateTotalOrder(state),
@@ -181,47 +216,80 @@ const Checkout = () => {
           <div className="col-md-8 col-lg-8 col-sm-12 mx-auto">
             <div className="row">
               <div className="col-md-6">
-                <Formik
-                  initialValues={{
-                    transfer_image: "",
-                    nombre: "",
-                    apellido: "",
-                    direccion: "",
-                    email: "",
-                    telefono: "",
-                    descripcion: "",
-                  }}
-                  onSubmit={(values, { setSubmitting, setFieldValue, setStatus }) =>
-                    handleConfirmPedido(values, { setSubmitting, setFieldValue, setStatus })
-                  }
-                >
+              <Formik
+                initialValues={{
+                  transfer_image: "",
+                  nombre: userProfileData.nombre,
+                  apellido: userProfileData.apellido,
+                  direccion: "",
+                  email: userProfileData.email,
+                  telefono: userProfileData.telefono,
+                  descripcion: "",
+                }}
+                onSubmit={(values, { setSubmitting, setStatus }) =>
+                  handleConfirmPedido(values, { setSubmitting, setStatus })
+                }
+              >
                   {({ isSubmitting, setFieldValue, status, values }) => (
                     <Form>
                       <div className="form my-3">
                         <label htmlFor="nombre">Nombre:</label>
                         <Field
-                          type="text"
-                          name="nombre"
-                          className="form-control"
-                          placeholder="Ingresa tu nombre"
-                          onChange={(e) => handleChange(e, setFieldValue)}
-                          minLength="3"
-                          maxLength="10"
-                          required
-                        />
+                        type="text"
+                        name="nombre"
+                        className="form-control"
+                        placeholder="Ingresa tu nombre"
+                        onChange={(e) => handleChange(e, setFieldValue)}
+                        minLength="3"
+                        maxLength="10"
+                        required
+                        value={values.nombre = userProfileData.nombre}
+                        readOnly
+                      />
                       </div>
                       <div className="form my-3">
                         <label htmlFor="apellido">Apellido:</label>
                         <Field
-                          type="text"
-                          name="apellido"
-                          className="form-control"
-                          placeholder="Ingresa tu apellido"
-                          onChange={(e) => handleChange(e, setFieldValue)}
-                          minLength="3"
-                          maxLength="10"
-                          required
-                        />
+                        type="text"
+                        name="apellido"
+                        className="form-control"
+                        placeholder="Ingresa tu apellido"
+                        onChange={(e) => handleChange(e, setFieldValue)}
+                        minLength="3"
+                        maxLength="10"
+                        required
+                        value={values.apellido = userProfileData.apellido}
+                        readOnly
+                      />
+                      </div>
+                      <div className="form my-3">
+                        <label htmlFor="email">Correo Electrónico:</label>
+                        <Field
+                        type="email"
+                        name="email"
+                        className="form-control"
+                        placeholder="Ingresa tu correo electrónico"
+                        required
+                        value={values.email = userProfileData.email}
+                        readOnly
+                      />
+                      </div>
+                      <div className="form my-3">
+                        <label htmlFor="telefono">Teléfono:</label>
+                        <Field
+                      type="tel"
+                      name="telefono"
+                      className="form-control"
+                      placeholder="Ingresa tu teléfono"
+                      onChange={(e) => handleChange(e, setFieldValue)}
+                      maxLength="10"
+                      required
+                      value={values.telefono = userProfileData.telefono}
+                      readOnly
+                    />
+                        {values.telefono.length !== 10 && (
+                          <small className="text-danger">El teléfono debe tener exactamente 10 dígitos.</small>
+                        )}
                       </div>
                       <div className="form my-3">
                         <label htmlFor="direccion">Dirección:</label>
@@ -230,32 +298,12 @@ const Checkout = () => {
                           name="direccion"
                           className="form-control"
                           placeholder="Ingresa tu dirección"
-                          required
-                        />
-                      </div>
-                      <div className="form my-3">
-                        <label htmlFor="email">Correo Electrónico:</label>
-                        <Field
-                          type="email"
-                          name="email"
-                          className="form-control"
-                          placeholder="Ingresa tu correo electrónico"
-                          required
-                        />
-                      </div>
-                      <div className="form my-3">
-                        <label htmlFor="telefono">Teléfono:</label>
-                        <Field
-                          type="tel"
-                          name="telefono"
-                          className="form-control"
-                          placeholder="Ingresa tu teléfono"
                           onChange={(e) => handleChange(e, setFieldValue)}
-                          maxLength="10"
+                          maxLength="40"
                           required
                         />
-                        {values.telefono.length !== 10 && (
-                          <small className="text-danger">El teléfono debe tener exactamente 10 dígitos.</small>
+                        {values.direccion.length <= 10 && (
+                          <small className="text-danger">La dirección debe tener al menos 10 caracteres.</small>
                         )}
                       </div>
                       <div className="form my-3">
@@ -269,7 +317,6 @@ const Checkout = () => {
                           maxLength="100"
                           required
                         />
-                        {/* Contador de caracteres en el campo de descripción */}
                         <div className="text-right mt-2">
                           <small>{values.descripcion.length}/100 caracteres</small>
                         </div>

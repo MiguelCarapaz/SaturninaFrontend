@@ -17,9 +17,9 @@ const Products2 = () => {
   const dispatch = useDispatch();
 
   const addProductToCart = (product) => {
-    const { id, name, precio, tallas, colores } = product;
+
+      const { id, name, precio, tallas, colores } = product;
     const { size, color } = selectedOptions[id] || {};
-  
     const hasTallas = Array.isArray(tallas) && tallas.length > 0;
     const hasColores = Array.isArray(colores) && colores.length > 0;
   
@@ -161,9 +161,9 @@ const Products2 = () => {
         </div>
 
         <div className="row">
-          {currentProducts.map((product) => (
+          {currentProducts.map((product, index) => (
             <ShowProductDetails
-              key={product.id_producto}
+              key={index}
               product={product}
               selectedOptions={selectedOptions}
               setSelectedOptions={setSelectedOptions}

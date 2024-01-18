@@ -1,6 +1,7 @@
 import React from 'react';
 import { Footer, Navbar } from '../components/Dashboard';
 import { Link } from 'react-router-dom';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { Formik, Form, Field } from 'formik';
 import Swal from 'sweetalert2';
 
@@ -140,29 +141,29 @@ const Register = () => {
                     )}
                   </div>
                   <div className="form my-3">
-        <label htmlFor="password">Contraseña</label>
-        <div className="input-group">
-          <Field
-            type={values.showPassword ? 'text' : 'password'}
-            name="password"
-            className="form-control"
-            id="password"
-            placeholder="*********"
-            required
-           minLength="9"
-           maxLength= "18"
-            value={values.password}
-          />
-                      <div className="input-group-append">
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={() => setFieldValue('showPassword', !values.showPassword)}
-                        >
-                          {values.showPassword ? 'Ocultar' : 'Mostrar'}
-                        </button>
-                      </div>
-                    </div>
+                    <label htmlFor="password">Contraseña</label>
+                    <div className="input-group">
+              <Field
+                type={values.showPassword ? 'text' : 'password'}
+                name="password"
+                className="form-control"
+                id="password"
+                placeholder="*********"
+                required
+                minLength="9"
+                maxLength="18"
+                value={values.password}
+              />
+              <div className="input-group-append">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary ms-3"
+                  onClick={() => setFieldValue('showPassword', !values.showPassword)}
+                >
+                  {values.showPassword ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
+                </button>
+              </div>
+            </div>
                     {values.password.length > 18 || values.password.length < 9 || !/[A-Z]/.test(values.password) || !/\d/.test(values.password) || !/[!@#$%^&*(),.?":{}|<>]/.test(values.password) ? (
                     <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
                   ) : (

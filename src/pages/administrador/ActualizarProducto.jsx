@@ -24,7 +24,7 @@ const ActualizarProducto = () => {
   });
 
   const [descripcionLength, setDescripcionLength] = useState(0);
-  const MAX_DESCRIPCION_LENGTH = 500;
+  const MAX_DESCRIPCION_LENGTH = 50;
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -236,53 +236,76 @@ const ActualizarProducto = () => {
                     />
                     <ErrorMessage name="nombre_producto" component="div" className="text-danger" />
                   </div>
-
                   <div className="form my-3">
-        <label htmlFor="descripcion">Descripción:</label>
+  <label htmlFor="descripcion">Descripción:</label>
+  <Field
+    as="textarea"
+    name="descripcion"
+    className="form-control"
+    placeholder="Ingresa la descripción del producto"
+    value={values.descripcion}
+    onChange={(event) => {
+      const newDescription = event.target.value;
+      const newLength = newDescription.length;
+
+      // Permitir la actualización si la longitud está en el rango de 0 a 50
+      if (newLength <= 50) {
+        setFieldValue("descripcion", newDescription);
+        setDescripcionLength(newLength);
+      }
+    }}
+    onBlur={() => {
+      setFieldValue("descripcion", values.descripcion.trim());
+    }}
+    required
+  />
+  <div className="text-right">
+    <small>
+      {descripcionLength}/{MAX_DESCRIPCION_LENGTH}
+    </small>
+  </div>
+  <ErrorMessage name="descripcion" component="div" className="text-danger" />
+  {(descripcionLength < 5 || descripcionLength > 50) && (
+    <p className="text-danger">La descripción debe tener entre 5 y 50 caracteres.</p>
+  )}
+</div>
+
+
+
+      <div className="form my-3">
+        <label htmlFor="precio">Precio:</label>
         <Field
-          as="textarea"
-          name="descripcion"
-          className="form-control"
-          placeholder="Ingresa la descripción del producto"
-          value={values.descripcion}
-          onChange={(event) => {
-            const newLength = event.target.value.length;
-            if (newLength <= MAX_DESCRIPCION_LENGTH) {
-              setFieldValue("descripcion", event.target.value);
-              setDescripcionLength(newLength);
-            }
-          }}
-          onBlur={() => {
-            setFieldValue("descripcion", values.descripcion.trim());
-          }}
-          required
-        />
-        <div className="text-right">
-          <small>
-            {descripcionLength}/{MAX_DESCRIPCION_LENGTH}
-          </small>
-        </div>
-        <ErrorMessage name="descripcion" component="div" className="text-danger" />
-        {descripcionLength > MAX_DESCRIPCION_LENGTH && (
-          <p className="text-danger">La descripción no puede tener más de {MAX_DESCRIPCION_LENGTH} caracteres.</p>
-        )}
+    name="precio"
+    validate={(value) => {
+      let error;
+      if (!value || isNaN(value) || parseFloat(value) < 1) {
+        error = "Ingresa un número válido mayor o igual a 1.";
+      } else if (parseFloat(value) >= 1000) {
+        error = "El precio debe ser menor a 1000.";
+      } else if (!/^\d+(\.\d{1,2})?$/.test(value.toString())) {
+        error = 'Ingresa un número con hasta 2 decimales.';
+      }
+      return error;
+    }}    
+  >
+          {({ field, form }) => (
+            <>
+              <input
+                {...field}
+                type="text"
+                className={`form-control ${form.errors.precio && form.touched.precio ? "is-invalid" : ""}`}
+                placeholder="Ingresa el precio del producto"
+                onBlur={() => form.setFieldTouched("precio", true)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, '');
+                  form.setFieldValue("precio", value);
+                }}
+              />
+              <ErrorMessage name="precio" component="div" className="text-danger" />
+            </>
+          )}
+        </Field>
       </div>
-
-
-                  <div className="form my-3">
-                    <label htmlFor="precio">Precio:</label>
-                    <Field
-                      type="number"
-                      name="precio"
-                      className="form-control"
-                      placeholder="Ingresa el precio del producto"
-                      value={values.precio}
-                      onChange={(event) => setFieldValue("precio", event.target.value)}
-                      onBlur={() => setFieldValue("precio", values.precio.trim())}
-                      required
-                    />
-                    <ErrorMessage name="precio" component="div" className="text-danger" />
-                  </div>
 
                   <div className="form my-3">
                     <label htmlFor="id_categoria">Categoría:</label>

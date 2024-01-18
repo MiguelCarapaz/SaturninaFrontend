@@ -30,15 +30,26 @@ const RecuperarCorreo = () => {
         });
       } else {
         const data = await response.json();
-        actions.setStatus({
-          error: data.error || 'Error en la solicitud de recuperación. Verifica tus datos.',
-        });
+        if (response.status === 422) {
+          actions.setStatus({
+            error: 'Necesita activar su cuenta.',
+          });
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Necesita activar su cuenta.',
+          });
+        } else {
+          actions.setStatus({
+            error: data.error || 'Error en la solicitud de recuperación. Verifica tus datos.',
+          });
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: actions.status.error,
+          });
+        }
         actions.setSubmitting(false);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: actions.status.error,
-        });
       }
     } catch (error) {
       actions.setStatus({
@@ -52,7 +63,7 @@ const RecuperarCorreo = () => {
       });
     }
   };
-
+  
   const renderRecoverAccount = () => {
     return (
       <Formik

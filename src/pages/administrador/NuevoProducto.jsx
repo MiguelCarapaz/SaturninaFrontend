@@ -13,6 +13,10 @@ const NuevoProducto = () => {
   const [categorias, setCategorias] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
 
+
+  const [descripcionLength, setDescripcionLength] = useState(0);
+  const MAX_DESCRIPCION_LENGTH = 50;
+
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
@@ -87,12 +91,11 @@ const NuevoProducto = () => {
         return;
       }
 
-      // Validar descripción (máximo 500 caracteres)
-      if (values.descripcion.length > 500) {
+      if (values.descripcion.length > 50) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'La descripción no puede exceder los 500 caracteres.',
+          text: 'La descripción no puede exceder los 50 caracteres.',
         });
         actions.setSubmitting(false);
         return;
@@ -137,18 +140,43 @@ const NuevoProducto = () => {
         actions.resetForm();
         navigate("/admin/dashboard3");
       } else {
-        const data = await response.json();
-        console.log("Error al crear el nuevo producto:", data.error || "Error desconocido");
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al crear el nuevo producto',
-          text: data.error || 'Este producto ya existe',
-        });
-        actions.setStatus({
-          error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
-        });
+        if (response.status === 422) {
+          const data = await response.json();
+          console.log("Error 422 al crear el nuevo producto:", data.error || "Error desconocido");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear el nuevo producto',
+            text: data.error || 'Error al crear el nuevo producto. Verifica tus datos',
+          });
+          actions.setStatus({
+            error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
+          });
+        } else if (response.status === 409) {
+          const data = await response.json();
+          console.log("Error 409 al crear el nuevo producto:", data.error || "Este producto ya existe");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear el nuevo producto',
+            text: data.error || 'Este producto ya existe',
+          });
+          actions.setStatus({
+            error: data.error || "Este producto ya existe.",
+          });
+        } else {
+          const data = await response.json();
+          console.log("Error al crear el nuevo producto:", data.error || "Error desconocido");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear el nuevo producto',
+            text: data.error || 'Error desconocido',
+          });
+          actions.setStatus({
+            error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
+          });
+        }
         actions.setSubmitting(false);
       }
+  
     } catch (error) {
       console.error("Error en la solicitud de creación del nuevo producto:", error);
       Swal.fire({
@@ -235,50 +263,75 @@ const NuevoProducto = () => {
                     />
                   </div>
                   <div className="form my-3">
-        <label htmlFor="descripcion">Descripción:</label>
-        <Field
-          as="textarea"
-          name="descripcion"
-          className="form-control"
-          placeholder="Ingresa la descripción del producto"
-          required
-          maxLength={100}
-        />
-        <div className="text-right">
-          <small>{status && status.error && status.error.length}</small>
-          <small>{values.descripcion.length}/100</small>
+  <label htmlFor="descripcion">Descripción:</label>
+  <Field
+    as="textarea"
+    name="descripcion"
+    className="form-control"
+    placeholder="Ingresa la descripción del producto"
+    value={values.descripcion}
+    onChange={(event) => {
+      const newDescription = event.target.value;
+      const newLength = newDescription.length;
+
+      // Permitir la actualización si la longitud está en el rango de 0 a 50
+      if (newLength <= 50) {
+        setFieldValue("descripcion", newDescription);
+        setDescripcionLength(newLength);
+      }
+    }}
+    onBlur={() => {
+      setFieldValue("descripcion", values.descripcion.trim());
+    }}
+    required
+  />
+  <div className="text-right">
+    <small>
+      {descripcionLength}/{MAX_DESCRIPCION_LENGTH}
+    </small>
+  </div>
+  <ErrorMessage name="descripcion" component="div" className="text-danger" />
+  {(descripcionLength < 5 || descripcionLength > 50) && (
+    <p className="text-danger">La descripción debe tener entre 5 y 50 caracteres.</p>
+  )}
+</div>
+
+<div className="form my-3">
+  <label htmlFor="precio">Precio:</label>
+  <Field
+    name="precio"
+    validate={(value) => {
+      let error;
+      if (!value || isNaN(value) || parseFloat(value) < 1) {
+        error = "Ingresa un número válido mayor o igual a 1.";
+      } else if (parseFloat(value) >= 1000) {
+        error = "El precio debe ser menor a 1000.";
+      }
+      return error;
+    }}
+  >
+    {({ field, form }) => (
+      <>
+        <div className="input-group">
+          <input
+            {...field}
+            type="text"
+            value={`$${field.value}`}
+            className={`form-control ${form.errors.precio && form.touched.precio ? "is-invalid" : ""}`}
+            placeholder="Ingresa el precio del producto"
+            onBlur={() => form.setFieldTouched("precio", true)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9.]/g, '');
+              form.setFieldValue("precio", value);
+            }}
+          />
         </div>
-      </div>
-      <div className="form my-3">
-        <label htmlFor="precio">Precio:</label>
-        <Field
-          name="precio"
-          validate={(value) => {
-            let error;
-            if (!value || isNaN(value) || parseFloat(value) < 1) {
-              error = "Ingresa un número válido mayor o igual a 1.";
-            }
-            return error;
-          }}
-        >
-          {({ field, form }) => (
-            <>
-              <input
-                {...field}
-                type="text"
-                className={`form-control ${form.errors.precio && form.touched.precio ? "is-invalid" : ""}`}
-                placeholder="Ingresa el precio del producto"
-                onBlur={() => form.setFieldTouched("precio", true)}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9.]/g, '');
-                  form.setFieldValue("precio", value);
-                }}
-              />
-              <ErrorMessage name="precio" component="div" className="text-danger" />
-            </>
-          )}
-        </Field>
-      </div>
+        <ErrorMessage name="precio" component="div" className="text-danger" />
+      </>
+    )}
+  </Field>
+</div>
+
                   <div className="form my-3">
                     <label htmlFor="id_categoria">Categoría:</label>
                     <Field as="select" name="id_categoria" className="form-control" required>

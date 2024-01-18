@@ -132,6 +132,7 @@ const Perfil = () => {
                 title: 'Éxito',
                 text: 'Datos actualizados con éxito.',
               });
+              setInitialData(perfilData);
             } else {
               if (response.status === 422) {
                 return response.json().then((data) => {

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer } from '../../src/components/Dashboard';
-import { useParams, Link } from 'react-router-dom';
+import { Navbar } from '../../src/components/Dashboard';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { Formik, Form, Field } from 'formik';
 
 const CambiarContrasena = () => {
   const [mensaje, setMensaje] = useState({});
@@ -36,8 +37,16 @@ const CambiarContrasena = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values, { setSubmitting, setStatus, resetForm }) => {
+    if (newPassword.length < 9 || checkPassword.length < 9) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas deben tener al menos 9 caracteres.',
+      });
+      setSubmitting(false);
+      return;
+    }
 
     if (newPassword !== checkPassword) {
       Swal.fire({
@@ -45,26 +54,29 @@ const CambiarContrasena = () => {
         title: 'Error',
         text: 'Las contraseñas no coinciden.',
       });
+      setSubmitting(false);
       return;
     }
 
     try {
-      const respuesta = await axios.post(urlCambiar, { new_password: newPassword, check_password: checkPassword });
+      const respuesta = await axios.post(urlCambiar, {
+        new_password: newPassword,
+        check_password: checkPassword,
+      });
       setNewPassword('');
       setCheckPassword('');
       setMensaje({ respuesta: respuesta.data.msg, tipo: true });
 
-      // Redirigir al usuario al login después de cambiar la contraseña con éxito
-      if (respuesta.data.success) {
-        Swal.fire({
+      if (respuesta.status === 200 ||  response.ok) {
+          Swal.fire({
           icon: 'success',
-          title: 'Contraseña cambiada con éxito',
+          title: 'Contraseña actualizada con éxito',
         }).then(() => {
-          window.location.href = "/login";
+          window.location.href = '/login';
         });
       }
     } catch (error) {
-      setMensaje({ respuesta: error.response.data.msg, tipo: false });
+      setMensaje({ respuesta: error.message || 'Hubo un error al cambiar la contraseña', tipo: false });
     }
   };
 
@@ -83,46 +95,100 @@ const CambiarContrasena = () => {
                   </p>
                 )}
                 {tokenVerified && (
-                  <form className="w-full" onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                      <label>Nueva Contraseña:</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        name="new_password"
-                        value={newPassword}
-                        minLength="9"
-                        maxLength="18"
-                        onChange={handleChange}
-                      />
-                    </div>
+                  <Formik
+                    initialValues={{
+                      new_password: '',
+                      check_password: '',
+                      showPassword: false,
+                    }}
+                    onSubmit={handleSubmit}
+                  >
+                    {({ isSubmitting, values, setFieldValue }) => (
+                      <Form>
+                        <div className="mb-3">
+                          <label>Nueva Contraseña:</label>
+                          <div className="input-group">
+                            <Field
+                              type={values.showPassword ? 'text' : 'password'}
+                              className="form-control"
+                              name="new_password"
+                              value={newPassword}
+                              minLength="9"
+                              maxLength="18"
+                              onChange={handleChange}
+                            />
+                            <div className="input-group-append">
+                              <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={() => setFieldValue('showPassword', !values.showPassword)}
+                              >
+                                {values.showPassword ? 'Ocultar' : 'Mostrar'}
+                              </button>
+                            </div>
+                          </div>
+                          {newPassword.length > 18 ||
+                          newPassword.length < 9 ||
+                          !/[A-Z]/.test(newPassword) ||
+                          !/\d/.test(newPassword) ||
+                          !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword) ? (
+                            <small className="text-danger">
+                              La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.
+                            </small>
+                          ) : (
+                            <small className="text-success">Contraseña válida.</small>
+                          )}
+                        </div>
 
-                    <div className="mb-3">
-                      <label>Confirmar Contraseña:</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        name="check_password"
-                        value={checkPassword}
-                        minLength="9"
-                        maxLength="18"
-                        onChange={handleChange}
-                      />
-                    </div>
+                        <div className="mb-3">
+                          <label>Confirmar Contraseña:</label>
+                          <div className="input-group">
+                            <Field
+                              type={values.showPassword ? 'text' : 'password'}
+                              className="form-control"
+                              name="check_password"
+                              value={checkPassword}
+                              minLength="9"
+                              maxLength="18"
+                              onChange={handleChange}
+                            />
+                            <div className="input-group-append">
+                              <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={() => setFieldValue('showPassword', !values.showPassword)}
+                              >
+                                {values.showPassword ? 'Ocultar' : 'Mostrar'}
+                              </button>
+                            </div>
+                          </div>
+                          {checkPassword.length > 18 ||
+                          checkPassword.length < 9 ||
+                          !/[A-Z]/.test(checkPassword) ||
+                          !/\d/.test(checkPassword) ||
+                          !/[!@#$%^&*(),.?":{}|<>]/.test(checkPassword) ? (
+                            <small className="text-danger">
+                              La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.
+                            </small>
+                          ) : (
+                            <small className="text-success">Contraseña válida.</small>
+                          )}
+                        </div>
 
-                    <div className="text-center">
-                      <button className="btn btn-success mx-2" type="submit">
-                        Cambiar Contraseña
-                      </button>
-                    </div>
-                  </form>
+                        <div className="text-center">
+                          <button className="btn btn-success mx-2" type="submit" disabled={isSubmitting}>
+                            Cambiar Contraseña
+                          </button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
                 )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

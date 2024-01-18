@@ -53,6 +53,14 @@ const VerPedidosAdmin = () => {
     fetchPedidos();
   }, [auth]);
 
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [currentTab]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [searchTerm]);
+
   const updateOrderStatus = async (id, status) => {
     try {
       const { value: descripcion } = await Swal.fire({
@@ -115,6 +123,7 @@ const VerPedidosAdmin = () => {
         <p><strong>Email:</strong> ${pedido.id_orden && pedido.id_orden.email}</p>
         <p><strong>Teléfono:</strong> ${pedido.id_orden && pedido.id_orden.telefono}</p>
         <p><strong>Dirección:</strong> ${pedido.id_orden && pedido.id_orden.direccion}</p>
+        <p><strong>Descripción del pedido:</strong> ${pedido.id_orden && pedido.id_orden.descripcion}</p>
         <p><strong>Total:</strong> $${pedido.id_producto.precio}</p>
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Voucher:</strong></p>
@@ -249,7 +258,7 @@ const VerPedidosAdmin = () => {
         )}
 
         <nav aria-label="Page navigation example">
-          <ul className="pagination">
+          <ul className="pagination justify-content-center">
             {Array.from({ length: Math.ceil(filteredPedidosByStatus.length / itemsPerPage) }, (_, index) => (
               <li className={`page-item ${index + 1 === currentPage ? 'active' : ''}`} key={index}>
                 <button className="page-link" onClick={() => paginate(index + 1)}>

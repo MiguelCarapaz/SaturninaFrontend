@@ -128,9 +128,10 @@ const Products = () => {
         </div>
 
         <div className="row">
-          {currentProducts.map((product) => (
-            <ShowProductDetails key={product.id_producto} product={product} />
-          ))}
+        {currentProducts.map((product, index) => (
+  <ShowProductDetails key={index} product={product} />
+))}
+
         </div>
 
         <div className="pagination text-center">
