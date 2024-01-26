@@ -48,7 +48,7 @@ export const Confirmar = () => {
       <div
         className="flex flex-col items-center justify-center h-dvh"
         style={{
-          backgroundImage: "url('../assets/recorver.svg')",
+          backgroundImage: "url('/assets/recorver.svg')",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
         }}

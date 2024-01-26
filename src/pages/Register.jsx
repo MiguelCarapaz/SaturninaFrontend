@@ -68,7 +68,7 @@ const Register = () => {
       <div
         className="container"
         style={{
-          backgroundImage: "url('public/assets/recorver.svg')",
+          backgroundImage: "url('/assets/recorver.svg')",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
         }}

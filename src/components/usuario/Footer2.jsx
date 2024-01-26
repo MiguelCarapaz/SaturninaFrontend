@@ -31,7 +31,7 @@ const Footer2 = ({ prevPage, nextPage }) => {
       <section>
         <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between p-4">
           <img
-            src="../assets/logo2.png"
+            src="/assets/logo2.png"
             alt="logo-saturnina"
             className="md:mb-0 mb-4"
           />

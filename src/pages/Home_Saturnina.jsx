@@ -16,17 +16,17 @@ function Home_Saturnina() {
           </Link>
         </div>
         <img
-          src="public\assets\star.svg"
+          src="/assets/star.svg"
           alt="estrella"
           className="hidden md:relative md:block  md:left-[30%] md:bottom-60 md:w-20"
         />
         <img
-          src="public\assets\star.svg"
+          src="/assets/star.svg"
           alt="estrella"
           className="hidden md:block md:relative right-20"
         />
         <img
-          src="public\assets\metalica-saturnina.webp"
+          src="/assets/metalica-saturnina.webp"
           alt="imagen-metalica"
           className=" hidden md:block md:justify-end"
         />

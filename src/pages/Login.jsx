@@ -139,7 +139,7 @@ const Login = () => {
             backgroundImage: `url(${
               esDispositivoMovil
                 ? "hidden"
-                : "public/assets/login.svg"
+                : "/assets/login.svg"
             })`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
