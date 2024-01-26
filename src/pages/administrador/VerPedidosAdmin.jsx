@@ -15,10 +15,10 @@ const VerPedidosAdmin = () => {
   const itemsPerPage = 5;
 
   const orderStatusTabs = {
-    'Pendiente': 'Pendiente',
+    'Pendiente': 'Pendientes',
     'En entrega': 'En entrega',
     'Rechazado': 'Rechazado',
-    'Finalizado': 'Finalizado',
+    'Finalizado': 'Finalizados',
   };
 
   const fetchPedidos = async () => {
@@ -54,11 +54,11 @@ const VerPedidosAdmin = () => {
   }, [auth]);
 
   useEffect(() => {
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, [currentTab]);
 
   useEffect(() => {
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, [searchTerm]);
 
   const updateOrderStatus = async (id, status) => {
@@ -68,6 +68,9 @@ const VerPedidosAdmin = () => {
         input: 'text',
         inputLabel: 'Ingresar Descripción',
         inputPlaceholder: 'Ingrese una descripción...',
+        inputAttributes: {
+          maxLength: 50,
+        },
         showCancelButton: true,
         preConfirm: (input) => {
           if (!input) {
@@ -75,7 +78,7 @@ const VerPedidosAdmin = () => {
           }
         },
       });
-  
+
       if (descripcion) {
         const response = await axios.put(
           `${import.meta.env.VITE_API_BASE_URL}/orders/${id}`,
@@ -86,7 +89,7 @@ const VerPedidosAdmin = () => {
             },
           }
         );
-  
+
         console.log('Actualización de estado exitosa:', response);
         Swal.fire({
           icon: 'success',
@@ -104,7 +107,6 @@ const VerPedidosAdmin = () => {
       });
     }
   };
-  
 
   const openDetailsModal = (pedido) => {
     const imagenes = pedido.id_producto.imagen;
@@ -113,9 +115,12 @@ const VerPedidosAdmin = () => {
     Swal.fire({
       title: 'Detalles del Pedido',
       html: `
+      <div class="text-center">
+      <button class="my-2 mx-auto btn btn-warning" id="updateStatusButton">Actualizar Estado del Pedido</button>
+    </div>
         <p><strong>Fecha:</strong> ${pedido.fecha}</p>
         <p><strong>Producto Adquirido:</strong> ${pedido.id_producto.name}</p>
-        ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;">`).join('') : ''}
+        ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;" class="mx-auto my-3">`).join('') : ''}
         <p><strong>Descripcion del producto:</strong> ${pedido.id_orden && pedido.id_orden.descripcion}</p>
         <p><strong>Tallas Disponibles:</strong> ${pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</p>
         <p><strong>Colores Disponibles:</strong> ${pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</p>   
@@ -127,10 +132,8 @@ const VerPedidosAdmin = () => {
         <p><strong>Total:</strong> $${pedido.id_producto.precio}</p>
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Voucher:</strong></p>
-        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto" style="max-width: 60%;">` : ''}
-        <div class="text-center">
-          <button class="my-2 mx-auto btn btn-warning" id="updateStatusButton">Actualizar Estado</button>
-        </div>
+        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto" style="max-width: 60%; class="mx-auto my-3">` : ''}
+
       `,
       showCloseButton: true,
     });
@@ -146,61 +149,67 @@ const VerPedidosAdmin = () => {
           'Rechazado': 'Rechazado',
           'Finalizado': 'Finalizado',
         },
-        inputPlaceholder: 'Selecciona un estado',
+        inputValue: pedido.status,
         showCancelButton: true,
-        preConfirm: (status) => {
-          if (!status) {
-            Swal.showValidationMessage('Debes seleccionar un estado');
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Debes seleccionar un estado';
           }
         },
-      }).then(({ value }) => {
-        if (value) {
-          updateOrderStatus(pedido.id, value);
-        }
+        preConfirm: (status) => {
+          updateOrderStatus(pedido.id, status);
+        },
       });
     });
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // Filtrar pedidos por estado seleccionado
+  const filteredPedidosByStatus = pedidos.filter((pedido) => pedido.status === currentTab);
 
-  const filteredPedidosByStatus = pedidos.filter(pedido => pedido.status === orderStatusTabs[currentTab]);
-  const currentFilteredItemsByStatus = filteredPedidosByStatus.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const filteredPedidos = pedidos.filter((pedido) =>
-    `${pedido.id_orden && pedido.id_orden.nombre} ${pedido.id_orden && pedido.id_orden.apellido}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  // Filtrar pedidos por término de búsqueda
+  const filteredPedidosBySearch = filteredPedidosByStatus.filter(
+    (pedido) =>
+      `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
-  const currentFilteredItems = filteredPedidos.slice(indexOfFirstItem, indexOfLastItem);
+  // Calcular índices de inicio y fin para la paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentFilteredItemsByStatus = filteredPedidosBySearch.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  // Cambiar de página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <>
       <Navbar3 />
       <div className="container">
-        <h1 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
-          Pedidos
-        </h1>
-
-        {/* Tabs de estados */}
-        <div className="mb-3">
-          <ul className="nav nav-tabs">
-            {Object.keys(orderStatusTabs).map(tab => (
-              <li className="nav-item" key={tab}>
-                <button
-                  className={`nav-link ${currentTab === tab ? 'active' : ''}`}
-                  onClick={() => setCurrentTab(tab)}
-                >
-                  {orderStatusTabs[tab]}
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div className="my-4">
+          <h2 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
+            Pedidos
+          </h2>
         </div>
 
+        {/* Tabs de estados */}
+        <ul className="nav nav-tabs mb-3">
+          {Object.keys(orderStatusTabs).map(tab => (
+            <li className="nav-item" key={tab}>
+              <button
+                className={`nav-link ${currentTab === tab ? 'active' : ''}`}
+                onClick={() => setCurrentTab(tab)}
+              >
+                {orderStatusTabs[tab]}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Barra de búsqueda */}
         <div className="mb-3">
           <label htmlFor="search" className="form-label">Buscar por Nombre y Apellido:</label>
           <input
@@ -212,52 +221,51 @@ const VerPedidosAdmin = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
         <hr />
 
+        {/* Tabla de pedidos */}
         {currentFilteredItemsByStatus && currentFilteredItemsByStatus.length > 0 ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto Adquirido</th>
-                <th>Talla</th>
-                <th>Color</th>
-                <th>Nombre y Apellido</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Dirección</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentFilteredItemsByStatus.map((pedido) => (
-                <tr key={pedido.id}>
-                  <td>{pedido.fecha}</td>
-                  <td>{pedido.id_producto.name}</td>
-                  <td>{pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</td>
-                  <td>{pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</td>
-                  <td>{pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.email}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.telefono}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.direccion}</td>
-                  <td>${pedido.id_producto.precio}</td>
-                  <td>{pedido.status}</td>
-                  <td>
-                    <button className="btn btn-outline-dark" onClick={() => openDetailsModal(pedido)}> 👁️
-                      <i className="fa fa-eye"></i>
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table table-bordered table-hover">
+              <thead className="table-dark">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Producto Adquirido</th>
+                  <th>Nombre y Apellido</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentFilteredItemsByStatus.map((pedido) => (
+                  <tr key={pedido.id}>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.fecha.substring(0, 10)}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_producto.name}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && pedido.id_orden.email}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && pedido.id_orden.telefono}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>${pedido.id_producto.precio}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{pedido.status}</td>
+                    <td>
+                      <button className="btn btn-outline-dark" onClick={() => openDetailsModal(pedido)}> 👁️
+                        <i className="fa fa-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <p>No hay pedidos disponibles para este estado.</p>
+          <p className="text-center">No hay pedidos disponibles para este estado.</p>
         )}
 
-        <nav aria-label="Page navigation example">
+        {/* Paginación */}
+        <nav className="mt-4" aria-label="Page navigation example">
           <ul className="pagination justify-content-center">
             {Array.from({ length: Math.ceil(filteredPedidosByStatus.length / itemsPerPage) }, (_, index) => (
               <li className={`page-item ${index + 1 === currentPage ? 'active' : ''}`} key={index}>

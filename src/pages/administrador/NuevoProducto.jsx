@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar3, Footer3 } from "../../components/administrador/administrador";
 import { Formik, Form, Field, ErrorMessage, FieldArray, useField  } from "formik";
 import Swal from "sweetalert2";
 
 const NuevoProducto = () => {
-  const dispatch = useDispatch();
   const [authToken] = useState(localStorage.getItem("authToken") || "");
   const navigate = useNavigate();
 
@@ -138,7 +136,7 @@ const NuevoProducto = () => {
         });
         actions.setSubmitting(false);
         actions.resetForm();
-        navigate("/admin/dashboard3");
+        navigate("/admin/dashboard");
       } else {
         if (response.status === 422) {
           const data = await response.json();
@@ -194,12 +192,12 @@ const NuevoProducto = () => {
   return (
     <>
       <Navbar3 />
-      <div className="container" style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}>
+      <div className="container" style={{  maxWidth: "10000px" }}>
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <h1 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
+            <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
               Nuevo Producto
-            </h1>
+            </h2>
             <hr />
             <Formik
               initialValues={{
@@ -227,6 +225,7 @@ const NuevoProducto = () => {
                 <Form>
                   <div className="form my-3">
                     <label htmlFor="imagenes_producto">Imágenes del Producto:</label>
+                    <p>Nota: Solo se puede subir un máximo de 4 imágenes</p>
                     <input
                       type="file"
                       name="imagenes_producto"
@@ -251,7 +250,7 @@ const NuevoProducto = () => {
                     </div>
                   </div>
                   <div className="form my-3">
-                    <label htmlFor="nombre_producto">Nombre del Producto:</label>
+                    <label htmlFor="nombre_producto">Nombre:</label>
                     <Field
                       type="text"
                       name="nombre_producto"
@@ -435,6 +434,9 @@ const NuevoProducto = () => {
             input: 'text',
             inputLabel: 'Ingresa el nombre del color:',
             inputPlaceholder: 'Ej. Rojo, Azul, Verde',
+            inputAttributes: {
+              maxLength: 15,
+            },
             inputValidator: (value) => {
               if (!value) {
                 return 'Debes ingresar el nombre del color';
@@ -475,11 +477,8 @@ const NuevoProducto = () => {
               )}
             </Formik>
             <div className="text-center">
-              <Link to="/admin/dashboard3">
+              <Link to="/admin/dashboard">
                 <button className="my-2 btn btn-secondary">Cancelar</button>
-              </Link>
-              <Link to="/admin/categorias">
-                <button className="my-2 btn btn-secondary">Categorias</button>
               </Link>
             </div>
           </div>

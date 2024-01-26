@@ -169,9 +169,9 @@ const Recuperar = () => {
     <>
       <Navbar />
       <div className="container" style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}>
-        <h1 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
+        <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
           {showChangePassword ? 'Cambiar Contraseña' : 'Recuperar Cuenta'}
-        </h1>
+        </h2>
         <hr />
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">

@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { Navbar3, Footer3 } from "../../components/administrador/administrador";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Swal from 'sweetalert2'; 
 import "react-toastify/dist/ReactToastify.css";
 import 'sweetalert2/dist/sweetalert2.min.css'; 
 
 const Categorias = () => {
-  const dispatch = useDispatch();
   const [categorias, setCategorias] = useState([]);
   const [authToken] = useState(localStorage.getItem("authToken") || "");
   const [error, setError] = useState(null);
@@ -136,8 +134,9 @@ const Categorias = () => {
   
         // Limpiar el formulario después de la operación con éxito
         setFormValues({
-          nombre_categoria: "",
+          nombre_categoria: " ",
         });
+        setEditando(false);
       }
     } catch (error) {
       console.error("Error al agregar la categoría:", error);
@@ -198,11 +197,11 @@ const Categorias = () => {
       <Navbar3 />
       <div
         className="container"
-        style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}
+        style={{  maxWidth: "10000px" }}
       >
-        <h1 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
-          Categorias
-        </h1>
+        <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
+          Categorías
+        </h2>
         <hr />
         {categorias.length === 0 && (
           <div className="alert alert-info mt-3" role="alert">

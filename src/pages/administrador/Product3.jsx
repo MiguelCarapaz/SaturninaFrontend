@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
 
 import { Footer3, Navbar3, Comentarios3 } from "../../components/administrador/administrador";
 
@@ -90,20 +90,6 @@ const Product3 = () => {
                 />
                 {product.imagen && product.imagen.length > 1 && (
                   <>
-                    <FaChevronLeft
-                      className="arrow left-arrow"
-                      onClick={() =>
-                        setCurrentImageIndex(
-                          (prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length
-                        )
-                      }
-                    />
-                    <FaChevronRight
-                      className="arrow right-arrow"
-                      onClick={() =>
-                        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)
-                      }
-                    />
                   </>
                 )}
               </div>
@@ -123,7 +109,7 @@ const Product3 = () => {
             </div>
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
-              <h1 className="display-5">{product.name}</h1>
+              <h2 className="display-5">{product.name}</h2>
               <h3 className="display-6 my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
 

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Footer2, Navbar2 } from "../../components/usuario/usuario";
 import { useSelector, useDispatch } from "react-redux";
 import { agregarAlCarrito, eliminarDelCarrito } from "../../redux/action";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { IoIosAdd } from "react-icons/io";
+import { IoRemoveOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { DEL_CART } from "../../redux/action/index";
 
@@ -17,7 +20,7 @@ const Cart = () => {
             <h4 className="p-3 display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
               Tu carrito está vacío
             </h4>
-            <Link to="/usuario/dashboard2" className="btn btn-outline-dark mx-4">
+            <Link to="/usuario/dashboard" className="btn btn-outline-dark mx-4">
               <i className="fa fa-arrow-left"></i> Continuar comprando
             </Link>
           </div>
@@ -93,7 +96,7 @@ const Cart = () => {
                                 className="card-img-top p-3 main-image"
                                 src={item.imagen[imageIndexes[index]].secure_url}
                                 alt={`${item.nombre_producto}-${imageIndexes[index]}`}
-                                style={{ height: "100px", width: "auto" }}
+                                style={{ height: "250px", width: "200px" }}
                               />
                               {item.imagen.length > 1 && (
                                 <div className="thumbnail-container mt-3">
@@ -111,62 +114,64 @@ const Cart = () => {
                             </div>
                           )}
                         </div>
-                        <div className="col-md-4">
-                          <p>
-                            <strong>{item.nombre_producto}</strong>
-                          </p>
-                          <p>Total por Producto: ${(item.precio * item.cantidad).toFixed(2)}</p>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="d-flex align-items-center justify-content-center my-3">
-                            <button
-                              className="btn btn-outline-dark px-3"
-                              onClick={() => {
-                                removeItem(item, true);
-                              }}
-                              disabled={item.cantidad === 1}
+                        <div className="col-md-3 position-relative">
+                          <button
+                            onClick={() => {
+                              deleteItem(item);
+                            }}
+                            className="position-absolute"
+                            style={{ top: '-20px', right: '-250px', background: "none", border: "none", cursor: "pointer" }}
                             >
-                              -
-                            </button>
-                            <p className="mx-3">{item.cantidad}</p>
-                            <button
-                              className="btn btn-outline-dark px-3"
-                              onClick={() => {
-                                addItem(item);
-                              }}
-                              disabled={item.cantidad === 10}
-                            >
-                              +
-                            </button>
-                            <button
-                              className="btn btn-outline-danger px-3 ml-2"
-                              onClick={() => {
-                                deleteItem(item);
-                              }}
-                            >
-                              Eliminar
-                            </button>
+                            <FaRegTrashAlt style={{position: 'absolute' ,color: 'red', fontSize: '1.5em' }} />
+                          </button>
+                          <div>
+                            <h4>{item.nombre_producto}</h4>
                           </div>
-                          <p className="text-center">
-                            <strong>${(item.precio * item.cantidad).toFixed(2)}</strong>
-                          </p>
                           {item.talla && (
-                            <p className="text-center">
-                              <strong>Talla:</strong> {item.talla}
-                            </p>
+                            <div>
+                              <p>Talla: {item.talla}</p>
+                            </div>
                           )}
                           {item.color && (
-                            <p className="text-center">
-                              <strong>Color:</strong> {item.color}
-                            </p>
+                            <div>
+                              <p>Color:{item.color}</p>
+                            </div>
                           )}
-                        </div>
-                        <div>
-                          {item.descripcion && (
-                            <p className="text-center">
-                              <strong>Descripcion:</strong> {item.descripcion}
-                            </p>
-                          )}
+                          <div>
+                            <b><h4>${(item.precio * item.cantidad).toFixed(2)}</h4></b>
+                          </div>
+                          <div>
+                              <p>Descripción: {item.descripcion}</p>
+                            </div>
+                        
+                          <div>
+                            <div
+                              className="d-flex"
+                              style={{ borderRadius: "30px", backgroundColor: "#f0f0f0", justifyContent:'center', paddingLeft:'70px', paddingRight:'70px', marginLeft:'300px'}}
+                            >                       
+                              <button
+                                className="btn"
+                                onClick={() => {
+                                  removeItem(item, true);
+                                }}
+                                disabled={item.cantidad === 1}
+                                style={{ fontSize: '1.5em' }}
+                              >
+                                <IoRemoveOutline />
+                              </button>
+                              <p className="mx-3" style={{ marginTop: '10px' }}>{item.cantidad}</p>
+                              <button
+                                className="btn "
+                                onClick={() => {
+                                  addItem(item);
+                                }}
+                                disabled={item.cantidad === 10}
+                                style={{ fontSize: '1.5em' }}
+                              >
+                                <IoIosAdd />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <hr className="my-4" />
@@ -201,18 +206,33 @@ const Cart = () => {
                         {item.nombre_producto} ({item.cantidad})<span>${(item.precio * item.cantidad).toFixed(2)}</span>
                       </li>
                     ))}
+                      <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                      <div>
+                        <strong>Envió gratis</strong>
+                      </div>
+                      <span>
+                        $0
+                      </span>
+                    </li>
                     <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                       <div>
-                        <strong>Total</strong>
+                        <strong>Subtotal</strong>
                       </div>
                       <span>
                         <strong>${totalOrder}</strong>
                       </span>
                     </li>
                   </ul>
-                  <Link to="/usuario/checkout" className="btn btn-dark btn-lg btn-block">
-                    Iniciar pago
-                  </Link>
+                  <div className="row d-flex justify-content-center">
+            <Link
+              to="/usuario/checkout"
+              className="btn btn-dark btn-lg btn-block mt-4"  
+              style={{ borderRadius: "30px" }}
+            >
+              Iniciar pago
+            </Link>
+          </div>
+
                 </div>
               </div>
             </div>
@@ -225,10 +245,10 @@ const Cart = () => {
   return (
     <>
       <Navbar2 />
-      <div className="container" style={{ backgroundColor: " rgba(218, 184, 215, 0.2)", maxWidth: "10000px" }}>
-        <h1 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
+      <div className="container" style={{ maxWidth: "10000px" }}>
+        <h2 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
           Carrito
-        </h1>
+        </h2>
         <hr />
         {state.length > 0 ? <ShowCart /> : <EmptyCart />}
       </div>

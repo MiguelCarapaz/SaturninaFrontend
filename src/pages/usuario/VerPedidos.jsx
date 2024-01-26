@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Navbar2, Footer2 } from '../../components/usuario/usuario';
 import { AuthContext } from '../../context/AuthProvider';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -94,6 +95,7 @@ const VerPedidos = () => {
   `${pedido.id_orden && pedido.id_producto.name}`.toLowerCase().includes(searchTerm.toLowerCase()) &&
   pedido.status.toLowerCase() === currentTab.toLowerCase()
 );
+const nombresPestañas = ['Pendientes', 'En entrega', 'Rechazado', 'Finalizados'];
 
 const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
 
@@ -111,8 +113,43 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
       title: 'Detalles del Pedido',
       html: `
         <p><strong>Fecha:</strong> ${pedido.fecha.substring(0, 10)}</p>
+        <div class="text-center">
+        ${
+          pedido.status === 'Rechazado' ? (
+            '<p>Este pedido fue rechazado si crees que es un error contactase con el administrador</p>'
+          ) : (
+            ''
+          )
+        }
+        </div>
+        <div class="text-center">
+        ${
+          pedido.status === 'En entrega' ? (
+            '<p>Este producto esta siendo enviado a tu domicilio espéralo</p>'
+          ) : (
+            ''
+          )
+        }
+        </div>
+        <div class="text-center">
+        ${
+          pedido.status === 'Pendiente' ? (
+            '<button class="my-2 mx-auto btn btn-dark" id="updateButton">Actualiza los datos de tu pedido</button>'
+          ) : (
+            ''
+          )
+        }
+        </div>
+        <div class="text-center">
+        ${
+          pedido.status === 'Finalizado' ? (
+            
+            '<div class="text-center"><p>Este pedido esta finalizado déjanos un comentario</p><a href="/usuario/product/' + pedido.id_producto.id + '"><button class="my-2 mx-auto btn btn-dark">Calificar Producto</button></a></div>'
+          ) : ''
+        }
+        </div>
         <p><strong>Producto Adquirido:</strong> ${pedido.id_orden && pedido.id_producto.name}</p>
-        ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;">`).join('') : ''}
+        ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;" class="mx-auto my-3">`).join('') : ''}
         <p><strong>Descripción del Producto:</strong> ${pedido.id_producto.descripcion}</p>
         <p><strong>Tallas Disponibles:</strong> ${pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</p>
         <p><strong>Colores Disponibles:</strong> ${pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</p>        
@@ -125,16 +162,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Motivo:</strong> ${pedido.descripcion}</p>
         <p><strong>Voucher:</strong></p>
-        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto" style="max-width: 60%;">` : ''}
-        <div class="text-center">
-        ${
-          pedido.status === 'Pendiente' ? (
-            `<button class="my-2 mx-auto btn btn-dark" id="updateButton">Actualizar</button>`
-          ) : (
-            `<p>Este producto no está en pendiente.</p>`
-          )
-        }
-      </div>
+        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto"style="max-width: 60%;" class="mx-auto my-3">` : ''}
     `,
       showCloseButton: true,
     });
@@ -287,24 +315,24 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
     <>
       <Navbar2 />
       <div className="container">
-        <h1 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
+        <h2 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
           Pedidos
-        </h1>
+        </h2>
   
         {/* Tabs de estados */}
         <div className="mb-3">
-      <ul className="nav nav-tabs">
-        {estadosPedido.map((estado) => (
-          <li className="nav-item" key={estado}>
-            <button
-              className={`nav-link ${currentTab === estado ? 'active' : ''}`}
-              onClick={() => setCurrentTab(estado)}
-            >
-              {estado}
-            </button>
-          </li>
-        ))}
-      </ul>
+        <ul className="nav nav-tabs">
+  {nombresPestañas.map((nombre, index) => (
+    <li className="nav-item" key={nombre}>
+      <button
+        className={`nav-link ${currentTab === estadosPedido[index] ? 'active' : ''}`}
+        onClick={() => setCurrentTab(estadosPedido[index])}
+      >
+        {nombre}
+      </button>
+    </li>
+  ))}
+</ul>
     </div>
         <div className="mb-3">
           <label htmlFor="search" className="form-label">Buscar por Producto:</label>
@@ -319,7 +347,8 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         </div>
         <hr />
         {currentItems && currentItems.length > 0 ? (
-          <table className="table table-striped table-hover">
+          <div className="table-responsive">
+          <table className="table table-bordered  table-hover" style={{borderRadius: '40px'}}>
             <thead className="table-dark">
               <tr>
                 <th>Fecha</th>
@@ -327,7 +356,6 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
                 <th>Nombre y Apellido</th>
                 <th>Email</th>
                 <th>Teléfono</th>
-                <th>Dirección</th>
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -336,14 +364,13 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
             <tbody>
               {currentItems.map((pedido) => (
                 <tr key={pedido.id}>
-                  <td>{pedido.fecha.substring(0, 10)}</td>
-                  <td>{pedido.id_orden && pedido.id_producto.name}</td>
-                  <td>{pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.email}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.telefono}</td>
-                  <td>{pedido.id_orden && pedido.id_orden.direccion}</td>
-                  <td>${pedido.id_producto.precio}</td>
-                  <td>{pedido.status}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.fecha.substring(0, 10)}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && pedido.id_producto.name}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && pedido.id_orden.email}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.id_orden && pedido.id_orden.telefono}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>${pedido.id_producto.precio}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{pedido.status}</td>
                   <td>
                     <button className="btn btn-outline-dark" onClick={() => openDetailsModal(pedido)}> 👁️
                       <i className="fa fa-eye"></i>
@@ -353,6 +380,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <p>No hay pedidos disponibles.</p>
         )}

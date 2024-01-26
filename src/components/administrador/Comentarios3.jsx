@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import StarRating3 from './StarRating3';
 import { AuthContext } from '../../context/AuthProvider';
+import { FaRegTrashAlt } from "react-icons/fa";
 import Swal from 'sweetalert2'; // Importa SweetAlert2
 
 const Comentario = ({ comentario, onDeleteComment }) => {
@@ -21,7 +22,7 @@ const Comentario = ({ comentario, onDeleteComment }) => {
   return (
     <div style={{ border: '1px solid #ddd', padding: '10px', marginBottom: '10px', position: 'relative' }}>
       <button onClick={handleDeleteClick} style={{ position: 'absolute', top: '5px', right: '5px', cursor: 'pointer' }}>
-        ❌
+      <FaRegTrashAlt style={styles.deleteIcon} />
       </button>
       <StarRating3 rating={comentario.calificacion} starSize="32px" filledColor="gold" emptyColor="lightgray" />
       <p style={{ marginTop: '5px' }}>
@@ -109,3 +110,11 @@ const Comentarios3 = ({ productId }) => {
 };
 
 export default Comentarios3;
+
+const styles = {
+  deleteIcon: {
+    color: 'red',
+    cursor: 'pointer',
+    fontSize: '24px',
+  },
+};

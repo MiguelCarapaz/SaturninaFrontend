@@ -1,48 +1,81 @@
 import React from "react";
 import { NavLink } from 'react-router-dom';
-
+import {
+  FaFacebook,
+  FaGooglePlay,
+  FaInstagram,
+  FaWhatsapp,
+} from "react-icons/fa";
+import { scroller, animateScroll } from "react-scroll";
 
 const Footer2 = ({ prevPage, nextPage }) => {
-  const facebookIconUrl = "https://img.freepik.com/vector-premium/facebook-icono-global-redes-sociales-mas-popular_944081-130.jpg";
-  const instagramIconUrl = "https://i.pinimg.com/originals/3b/21/c7/3b21c7efd2ba9c119fb8d361acacc31d.png";
-  const tiktokIconUrl = "https://cdn-icons-png.flaticon.com/512/4138/4138151.png";
-  const twitterIconUrl = "https://cdn.icon-icons.com/icons2/2972/PNG/512/twitter_logo_icon_186891.png";
-  const playstoreIconUrl = "https://1000marcas.net/wp-content/uploads/2021/07/Google-Play-Logo-2016.png";
+   const anioActual = new Date().getFullYear();
+   const handleScrollTo = (elementId) => {
+     scroller.scrollTo(elementId, {
+       duration: 150,
+       delay: 0,
+       smooth: "easeInOutQuart",
+       offset: 1,
+       spy: true,
+     });
+   };
+   const handleScrollToTop = () => {
+     animateScroll.scrollToTop({
+       duration: 150, // Puedes ajustar la duración según tus preferencias
+       smooth: "easeInOutQuart",
+     });
+   };
 
   return (
-    <footer className="py-3 text-center" style={{ backgroundImage: 'url(../../../public/assets/logo2.png)', backgroundRepeat: 'no-repeat', backgroundColor: 'rgba(249, 222, 230, 0.3)' }}>
-      <div className="container">
-        <div className="row">
-          <div className="col">
+    <footer className="bg-slate-100">
+      <section>
+        <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between p-4">
+          <img
+            src="../public/assets/logo2.png"
+            alt="logo-saturnina"
+            className="md:mb-0 mb-4"
+          />
+          <div className="flex flex-col justify-center items-center md:mb-0 mb-4">
             <h4>Términos y Condiciones</h4>
-            <p>Misión</p>
-            <p>Visión</p>
+            <NavLink
+              to="/dashboard"
+              className="no-underline text-black cursor-pointer"
+              onClick={() => {
+                handleScrollToTop();
+              }}
+            >
+              Inicio
+            </NavLink>
+            <NavLink
+              to="/dashboard"
+              className="no-underline text-black cursor-pointer"
+              onClick={() => {
+                handleScrollTo("comentarios");
+              }}
+            >
+              Comentarios
+            </NavLink>
           </div>
 
-          <div className="col">
+          <div className="flex flex-col items-center md:mb-0 mb-4">
             <h4>Redes Sociales</h4>
-            <div>
-              <a href="tu_enlace_facebook" target="_blank" rel="noopener noreferrer" style={{ background: `url(${facebookIconUrl})`, width: '50px', height: '50px', display: 'inline-block', backgroundSize: 'cover' }}></a>
-              <a href="tu_enlace_instagram" target="_blank" rel="noopener noreferrer" style={{ background: `url(${instagramIconUrl})`, width: '50px', height: '50px', display: 'inline-block', backgroundSize: 'cover' }}></a>
-              <a href="tu_enlace_tiktok" target="_blank" rel="noopener noreferrer" style={{ background: `url(${tiktokIconUrl})`, width: '50px', height: '50px', display: 'inline-block', backgroundSize: 'cover' }}></a>
-              <a href="tu_enlace_twitter" target="_blank" rel="noopener noreferrer" style={{ background: `url(${twitterIconUrl})`, width: '50px', height: '50px', display: 'inline-block', backgroundSize: 'cover' }}></a>
+            <div className="flex flex-row text-4xl my-2 gap-4">
+              <FaFacebook className="hover:text-blue-600" />
+              <FaInstagram className="hover:text-fuchsia-500" />
+              <FaWhatsapp className="hover:text-green-500" />
             </div>
           </div>
 
-          <div className="col">
+          <div className="flex flex-col justify-center items-center md:mb-0 mb-4">
             <h4>App Móvil</h4>
-            <div>
-              <a href="tu_enlace_playstore" target="_blank" rel="noopener noreferrer" style={{ background: `url(${playstoreIconUrl})`, width: '150px', height: '70px', display: 'inline-block', backgroundSize: 'cover' }}></a>
-            </div>
+            <FaGooglePlay className="text-3xl hover:text-green-500 mt-2" />
           </div>
         </div>
-       <div className="row">
-          <div className="col">
-            <br />
-            <p>&copy; 2023 Saturnina. Todos los derechos reservados.</p>
-          </div>
+        <div className="flex items-center justify-center mt-2 ">
+          <br />
+          <p>&copy; {anioActual} Saturnina. Todos los derechos reservados.</p>
         </div>
-      </div>
+      </section>
     </footer>
   );
 };

@@ -173,7 +173,7 @@ const Checkout = () => {
           icon: "success",
         }).then(() => {
           setShowSuccessMessage(false);
-          navigate("/usuario/dashboard2");
+          navigate("/usuario/dashboard");
         });
       } else {
         const data = await response.json();
@@ -196,7 +196,7 @@ const Checkout = () => {
     if (showSuccessMessage) {
       timeout = setTimeout(() => {
         setShowSuccessMessage(false);
-        navigate("/usuario/dashboard2");
+        navigate("/usuario/dashboard");
       }, 3000);
     }
     return () => {
@@ -207,10 +207,10 @@ const Checkout = () => {
   return (
     <>
       <Navbar2 />
-      <div className="container" style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}>
-        <h1 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
+      <div className="container" style={{ maxWidth: "10000px" }}>
+        <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
           Checkout
-        </h1>
+        </h2>
         <hr />
         <div className="row my-4 h-100">
           <div className="col-md-8 col-lg-8 col-sm-12 mx-auto">
@@ -321,6 +321,26 @@ const Checkout = () => {
                           <small>{values.descripcion.length}/100 caracteres</small>
                         </div>
                       </div>
+                      <div className="card-body">
+      <div className="card">
+        <label htmlFor="">Cuenta</label>
+        <p>
+          <strong>Banco:</strong> Banco Pichincha ahorros
+        </p>
+        <p>
+          <strong>Número de cuenta:</strong> 2209757370
+        </p>
+        <p>
+          <strong>Cédula:</strong> 1718299603
+        </p>
+        <p>
+          <strong>Nombre:</strong> Shirley Rivadeneira
+        </p>
+        <p>
+          <strong>Email:</strong> shirley.r_mj@hotmail.com
+        </p>
+      </div>
+    </div>
                       <div className="form my-3">
                         <label htmlFor="transfer_image">Comprobante de Pago:</label>
                         <input
@@ -363,10 +383,18 @@ const Checkout = () => {
                         key={item.id_producto}
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
-                        {item.nombre_producto} ({item.cantidad}) - Talla: {item.talla || ""}, Color: {item.color || ""}
+                        {item.nombre_producto} ({item.cantidad})
                         <span>${item.precio * item.cantidad}</span>
                       </li>
                     ))}
+                       <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                      <div>
+                        <strong>Envió gratis</strong>
+                      </div>
+                      <span>
+                        $0
+                      </span>
+                    </li>
                     <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                       <div>
                         <strong>Total</strong>
@@ -374,6 +402,7 @@ const Checkout = () => {
                       <span>
                         <strong>${calculateTotalOrder(state)}</strong>
                       </span>
+                      
                     </li>
                   </div>
                 </div>

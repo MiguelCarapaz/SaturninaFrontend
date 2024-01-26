@@ -3,6 +3,7 @@ import { Navbar3, Footer3 } from '../../components/administrador/administrador';
 import { AuthContext } from '../../context/AuthProvider';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const Perfil2 = () => {
   const { auth } = useContext(AuthContext);
@@ -215,204 +216,235 @@ const Perfil2 = () => {
   return (
     <>
       <Navbar3 />
-      <div className="container my-5 py-2">
-        <div className="row">
-          <div className="col-md-6">
-            <div className="card mb-4">
-              <img
-                src="/public/assets/user.png"
-                alt="Foto de perfil"
-                style={{ width: '40%', margin: 'auto' }}
-              />
-              <div className="card-body text-center">
-                <button
-                  className="btn btn-primary mx-auto"
-                  onClick={handleUpdate}
-                  style={{ display: !isEditMode ? 'block' : 'none' }}
-                >
-                  Actualizar Perfil
-                </button>
-                <Link to="/admin/verpedidosadmin/" className="btn btn-dark btn-lg btn-block">
-                  Ver Pedidos
-                </Link>
-              </div>
+      <div className=" flex flex-row w-full my-5 py-2 items-center justify-center">
+        <div className="card mb-4 w-3/4">
+          <div className="card-body w-full">
+            <div className="flex flex-row justify-evenly items-start w-full">
+              <button
+                className="btn btn-primary"
+                onClick={handleUpdate}
+                style={{ display: !isEditMode ? "block" : "none" }}
+              >
+                Actualizar Perfil
+              </button>
             </div>
-          </div>
-          <div className="col-md-6">
-            <div className="card mb-4">
-              <div className="card-body">
-                {perfilData ? (
-                  <>
-                    <div className="mb-3">
-                      <label>Email:</label>
-                      {isEditMode ? (
-                        <input
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          value={perfilData.email}
-                          onChange={handleChange}
-                          disabled={true}
-                        />
-                      ) : (
-                        <div className="form-control-plaintext">{perfilData.email}</div>
-                      )}
+            {perfilData ? (
+              <>
+                <div className="mb-3 flex flex-col items-start">
+                  <label>Email:</label>
+                  {isEditMode ? (
+                    <input
+                      type="email"
+                      className="form-control"
+                      name="email"
+                      value={perfilData.email}
+                      onChange={handleChange}
+                      disabled={true}
+                    />
+                  ) : (
+                    <div className="form-control-plaintext">
+                      {perfilData.email}
                     </div>
-       <div className="mb-3">
-        <label>Nombre:</label>
-        {isEditMode ? (
-          <>
-            <input
-              type="text"
-              className="form-control"
-              name="nombre"
-              value={perfilData.nombre}
-              minLength="3"
-              maxLength="10"
-              onChange={handleChange}
-            />
-            {perfilData.nombre.length < 3 && (
-              <small className="text-danger">El nombre debe tener al menos 3 caracteres.</small>
-            )}
-          </>
-        ) : (
-          <div className="form-control-plaintext">{perfilData.nombre}</div>
-        )}
-      </div>
-
-      <div className="mb-3">
-        <label>Apellido:</label>
-        {isEditMode ? (
-          <>
-            <input
-              type="text"
-              className="form-control"
-              name="apellido"
-              minLength="3"
-              maxLength="10"
-              value={perfilData.apellido}
-              onChange={handleChange}
-            />
-            {perfilData.apellido.length < 3 && (
-              <small className="text-danger">El apellido debe tener al menos 3 caracteres.</small>
-            )}
-          </>
-        ) : (
-          <div className="form-control-plaintext">{perfilData.apellido}</div>
-        )}
-      </div>
-
-      <div className="mb-3">
-        <label>Teléfono:</label>
-        {isEditMode ? (
-          <>
-            <input
-              type="tel"
-              className="form-control"
-              name="telefono"
-              value={perfilData.telefono}
-              onChange={handleChange}
-            />
-            {phoneValidationMessage && (
-              <small className="text-danger">{phoneValidationMessage}</small>
-            )}
-          </>
-        ) : (
-          <div className="form-control-plaintext">{perfilData.telefono}</div>
-        )}
-      </div>
-                    <div className="text-center">
-                      {isEditMode ? (
-                        <>
-                          <button className="btn btn-success mx-2" onClick={handleConfirm}>
-                            Confirmar
-                          </button>
-                          <button className="btn btn-danger mx-2" onClick={handleCancel}>
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <button></button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <p>Cargando datos del perfil...</p>
-                )}
-                {(isEditMode || isChangePasswordMode) && (
-                  <>
+                  )}
+                </div>
                 <div className="mb-3">
-                      <label>Nueva Contraseña:</label>
-                      {isEditMode ? (
-                        <>
-                          <input
-                            type={showNewPassword ? 'text' : 'password'}
-                            className="form-control"
-                            name="newPassword"
-                            value={newPassword}
-                            minLength="9"
-                            maxLength="18"
-                            onChange={handleChangePassword}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary"
-                            onClick={handleToggleNewPassword}
-                          >
-                            {showNewPassword ? 'Ocultar' : 'Mostrar'}
-                          </button>
-      {newPassword.length > 18 || newPassword.length < 9 || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword) ? (
-        <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
-      ) : (
-        <small className="text-success">Contraseña válida.</small>
-      )}
-    </>
-  ) : (
-    <div></div>
-  )}
-</div>
-
-<div className="mb-3">
-                      <label>Confirmar Contraseña:</label>
-                      {isEditMode ? (
-                        <>
-                          <input
-                            type={showCheckPassword ? 'text' : 'password'}
-                            className="form-control"
-                            name="checkPassword"
-                            value={checkPassword}
-                            minLength="9"
-                            maxLength="18"
-                            onChange={handleChangePassword}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary"
-                            onClick={handleToggleCheckPassword}
-                          >
-                            {showCheckPassword ? 'Ocultar' : 'Mostrar'}
-                          </button>
-      {checkPassword.length > 18 || checkPassword.length < 9 || !/[A-Z]/.test(checkPassword) || !/\d/.test(checkPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(checkPassword) ? (
-        <small className="text-danger">La contraseña debe tener entre 9 y 18 caracteres y contener al menos una letra mayúscula, un número y un carácter especial.</small>
-      ) : (
-        <small className="text-success">Contraseña válida.</small>
-      )}
-    </>
-  ) : (
-    <div></div>
-  )}
-</div>
-                    <div className="text-center">
-                      {isEditMode && (
-                        <button className="btn btn-success mx-2" onClick={handleUpdatePassword}>
-                          Actualizar Contraseña
-                        </button>
+                  <label>Nombre:</label>
+                  {isEditMode ? (
+                    <>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="nombre"
+                        value={perfilData.nombre}
+                        minLength="3"
+                        maxLength="10"
+                        onChange={handleChange}
+                      />
+                      {perfilData.nombre.length < 3 && (
+                        <small className="text-danger">
+                          El nombre debe tener al menos 3 caracteres.
+                        </small>
                       )}
+                    </>
+                  ) : (
+                    <div className="form-control-plaintext">
+                      {perfilData.nombre}
                     </div>
-                  </>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label>Apellido:</label>
+                  {isEditMode ? (
+                    <>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="apellido"
+                        minLength="3"
+                        maxLength="10"
+                        value={perfilData.apellido}
+                        onChange={handleChange}
+                      />
+                      {perfilData.apellido.length < 3 && (
+                        <small className="text-danger">
+                          El apellido debe tener al menos 3 caracteres.
+                        </small>
+                      )}
+                    </>
+                  ) : (
+                    <div className="form-control-plaintext">
+                      {perfilData.apellido}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label>Teléfono:</label>
+                  {isEditMode ? (
+                    <>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        name="telefono"
+                        value={perfilData.telefono}
+                        onChange={handleChange}
+                      />
+                      {phoneValidationMessage && (
+                        <small className="text-danger">
+                          {phoneValidationMessage}
+                        </small>
+                      )}
+                    </>
+                  ) : (
+                    <div className="form-control-plaintext">
+                      {perfilData.telefono}
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  {isEditMode ? (
+                    <>
+                      <button
+                        className="btn btn-success mx-2"
+                        onClick={handleConfirm}
+                      >
+                        Confirmar
+                      </button>
+                      <button
+                        className="btn btn-danger mx-2"
+                        onClick={handleCancel}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button></button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p>Cargando datos del perfil...</p>
+            )}
+            {(isEditMode || isChangePasswordMode) && (
+              <>
+                <div className="mb-3 flex flex-row mt-4">
+                  <label>Nueva Contraseña:</label>
+                  {isEditMode ? (
+                    <>
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        className="form-control "
+                        name="newPassword"
+                        value={newPassword}
+                        minLength="9"
+                        maxLength="18"
+                        onChange={handleChangePassword}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary ml-3"
+                        onClick={handleToggleNewPassword}
+                      >
+                        {showNewPassword ? (
+                          <AiOutlineEye />
+                        ) : (
+                          <AiOutlineEyeInvisible />
+                        )}
+                      </button>
+                    </>
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
+                {newPassword.length > 18 ||
+                newPassword.length < 9 ||
+                !/[A-Z]/.test(newPassword) ||
+                !/\d/.test(newPassword) ||
+                !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword) ? (
+                  <small className="text-danger">
+                    La contraseña debe tener entre 9 y 18 caracteres y contener
+                    al menos una letra mayúscula, un número y un carácter
+                    especial.
+                  </small>
+                ) : (
+                  <small className="text-success">Contraseña válida.</small>
                 )}
-              </div>
-            </div>
+
+                <div className="mb-3 flex flex-row mt-4">
+                  <label>Confirmar Contraseña:</label>
+                  {isEditMode ? (
+                    <>
+                      <input
+                        type={showCheckPassword ? "text" : "password"}
+                        className="form-control"
+                        name="checkPassword"
+                        value={checkPassword}
+                        minLength="9"
+                        maxLength="18"
+                        onChange={handleChangePassword}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary ml-3"
+                        onClick={handleToggleCheckPassword}
+                      >
+                        {showCheckPassword ? (
+                          <AiOutlineEye />
+                        ) : (
+                          <AiOutlineEyeInvisible />
+                        )}
+                      </button>
+                    </>
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
+                {checkPassword.length > 18 ||
+                checkPassword.length < 9 ||
+                !/[A-Z]/.test(checkPassword) ||
+                !/\d/.test(checkPassword) ||
+                !/[!@#$%^&*(),.?":{}|<>]/.test(checkPassword) ? (
+                  <small className="text-danger">
+                    La contraseña debe tener entre 9 y 18 caracteres y contener
+                    al menos una letra mayúscula, un número y un carácter
+                    especial.
+                  </small>
+                ) : (
+                  <small className="text-success">Contraseña válida.</small>
+                )}
+                <div className="text-center mt-4">
+                  {isEditMode && (
+                    <button
+                      className="btn btn-success mx-2"
+                      onClick={handleUpdatePassword}
+                    >
+                      Actualizar Contraseña
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

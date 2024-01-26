@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Swal from 'sweetalert2';
 import { Navbar2, Footer2, Comentarios2 } from "../../components/usuario/usuario";
 import * as actions from "../../redux/action/index";
@@ -136,19 +135,11 @@ const Product2 = () => {
               <div className="image-container">
                 <img
                   className="img-fluid"
-                  src={product.imagen?.[currentImageIndex]?.secure_url || ''}
+                  src={product.imagen?.[currentImageIndex]?.secure_url || ""}
                   alt={product.name}
                 />
                 {product.imagen && product.imagen.length > 1 && (
                   <>
-                    <FaChevronLeft
-                      className="arrow left-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length)}
-                    />
-                    <FaChevronRight
-                      className="arrow right-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)}
-                    />
                   </>
                 )}
               </div>
@@ -157,7 +148,9 @@ const Product2 = () => {
                   {product.imagen.map((img, index) => (
                     <img
                       key={index}
-                      className={`thumbnail ${index === currentImageIndex ? 'selected' : ''}`}
+                      className={`thumbnail ${
+                        index === currentImageIndex ? "selected" : ""
+                      }`}
                       src={img.secure_url}
                       alt={product.name}
                       onClick={() => setCurrentImageIndex(index)}
@@ -168,64 +161,80 @@ const Product2 = () => {
             </div>
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
-              <h1 className="display-5">{product.name}</h1>
+              <h2 className="display-5">{product.name}</h2>
               <h3 className="display-6  my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
-              <div className="form-group">
-                <label htmlFor={`selectSize${id}`}>Talla:</label>
-                <select
-                  className="form-control"
-                  id={`selectSize${id}`}
-                  onChange={handleSizeChange}
-                  value={selectedOptions.size || ""}
-                >
-                  <option key="" value="" disabled>
-                    Selecciona una talla
-                  </option>
-                  {product.tallas &&
-                    Array.isArray(product.tallas) &&
-                    product.tallas.map((talla, index) => (
-                      <option
-                        key={`${talla.name}-${talla.status}`}
-                        value={talla.name}
-                      >
-                        {talla.name}
+              {product.tallas &&
+                Array.isArray(product.tallas) &&
+                product.tallas.length > 0 && (
+                  <div className="form-group mb-4">
+                    <label className="mr-2" htmlFor={`selectSize${id}`}>
+                      Talla:
+                    </label>
+                    <select
+                      className="appearance-none border border-gray-300 py-2 px-3 rounded-md leading-tight focus:outline-none focus:shadow-outline"
+                      id={`selectSize${id}`}
+                      onChange={handleSizeChange}
+                      value={selectedOptions.size || ""}
+                    >
+                      <option value="" disabled>
+                        Selecciona una talla
                       </option>
-                    ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor={`selectColor${id}`}>Color:</label>
-                <select
-                  className="form-control"
-                  id={`selectColor${id}`}
-                  onChange={handleColorChange}
-                  value={selectedOptions.color || ""}
-                >
-                  <option key="" value="" disabled>
-                    Selecciona un color
-                  </option>
-                  {product.colores &&
-                    Array.isArray(product.colores) &&
-                    product.colores.map((color, index) => (
-                      <option key={index} value={color.name}>
-                        {color.name}
+                      {product.tallas.map((talla, index) => (
+                        <option
+                          key={`${talla.name}-${talla.status}`}
+                          value={talla.name}
+                          className="text-gray-800"
+                        >
+                          {talla.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              {product.colores &&
+                Array.isArray(product.colores) &&
+                product.colores.length > 0 && (
+                  <div className="form-group mb-4 ">
+                    <label className="mr-2" htmlFor={`selectColor${id}`}>
+                      Color:
+                    </label>
+                    <select
+                      className="appearance-none border border-gray-300 py-2 px-3 rounded-md leading-tight focus:outline-none focus:shadow-outline"
+                      id={`selectColor${id}`}
+                      onChange={handleColorChange}
+                      value={selectedOptions.color || ""}
+                    >
+                      <option value="" disabled>
+                        Selecciona un color
                       </option>
-                    ))}
-                </select>
-              </div>
-            <button className="btn btn-outline-dark" onClick={addProductToCart}>
-              Añadir al carrito
-            </button>
-            <Link to="/usuario/cart" className="btn btn-dark mx-3">
-              Ir al carrito
-            </Link>
+                      {product.colores.map((color, index) => (
+                        <option
+                          key={index}
+                          value={color.name}
+                          className="text-gray-800 bg-gray-200"
+                          style={{ backgroundColor: color.name.toLowerCase() }}
+                        >
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              <button
+                className="btn btn-outline-dark"
+                onClick={addProductToCart}
+              >
+                Añadir al carrito
+              </button>
+              <Link to="/usuario/cart" className="btn btn-dark mx-3">
+                Ir al carrito
+              </Link>
+            </div>
           </div>
+          <Comentarios2 productId={product.id} />
         </div>
-        <Comentarios2 productId={product.id} />
-        </div>
-        </>
-        
+      </>
     );
   };
 

@@ -89,18 +89,28 @@ const Product = () => {
               <div className="image-container">
                 <img
                   className="img-fluid"
-                  src={product.imagen?.[currentImageIndex]?.secure_url || ''}
+                  src={product.imagen?.[currentImageIndex]?.secure_url || ""}
                   alt={product.name}
                 />
                 {product.imagen && product.imagen.length > 1 && (
                   <>
                     <FaChevronLeft
                       className="arrow left-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.imagen.length) % product.imagen.length)}
+                      onClick={() =>
+                        setCurrentImageIndex(
+                          (prevIndex) =>
+                            (prevIndex - 1 + product.imagen.length) %
+                            product.imagen.length
+                        )
+                      }
                     />
                     <FaChevronRight
                       className="arrow right-arrow"
-                      onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imagen.length)}
+                      onClick={() =>
+                        setCurrentImageIndex(
+                          (prevIndex) => (prevIndex + 1) % product.imagen.length
+                        )
+                      }
                     />
                   </>
                 )}
@@ -110,7 +120,9 @@ const Product = () => {
                   {product.imagen.map((img, index) => (
                     <img
                       key={index}
-                      className={`thumbnail ${index === currentImageIndex ? 'selected' : ''}`}
+                      className={`thumbnail ${
+                        index === currentImageIndex ? "selected" : ""
+                      }`}
                       src={img.secure_url}
                       alt={product.name}
                       onClick={() => setCurrentImageIndex(index)}
@@ -121,9 +133,14 @@ const Product = () => {
             </div>
             <div className="col-md-6 col-md-6 py-5">
               <h4 className="text-uppercase text-muted">{categoryName}</h4>
-              <h1 className="display-5">{product.name}</h1>
+              <h2 className="display-5">{product.name}</h2>
               <h3 className="display-6  my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
+              <Link to="/login" className="no-underline">
+                <button className="btn btn-outline-dark m-1 w-fit">
+                  Comprar
+                </button>
+              </Link>
             </div>
           </div>
         </div>

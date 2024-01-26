@@ -30,8 +30,13 @@ const Comentarios2 = ({ productId }) => {
   const [commentError, setCommentError] = useState('');
 
   const hasUserCommented = () => {
-    return userComment !== null && comments.length > 0;
+    const storedId = localStorage.getItem('id');
+    const result = userComment !== undefined && comments.some(comment => comment.user_id?.id === storedId);
+    console.log('hasUserCommented:', result);
+    return result;
   };
+  
+  
 
   const fetchComments2 = async () => {
     setLoading(true);
@@ -87,11 +92,17 @@ const Comentarios2 = ({ productId }) => {
 
       if (!perfilLoaded || !storedId) {
         console.error('ID de usuario no válido:', storedId);
+        console.error('Perfil no cargado correctamente.');
         return;
       }
 
       if (!newComment.descripcion) {
         setCommentError('Campo de comentario obligatorio');
+        return;
+      }
+
+      if (!newComment.calificacion) {
+        setCommentError('Campo de calificación obligatorio');
         return;
       }
 
@@ -156,6 +167,7 @@ const Comentarios2 = ({ productId }) => {
     }
   };
 
+
   const handleUpdateComment = async () => {
     try {
       const storedId = localStorage.getItem('id');
@@ -168,6 +180,16 @@ const Comentarios2 = ({ productId }) => {
 
       if (!newComment.descripcion) {
         setCommentError('Campo de comentario obligatorio');
+        return;
+      }
+
+      if (!newComment.calificacion) {
+        setCommentError('Campo de calificación obligatorio');
+        return;
+      }
+
+      if (newComment.descripcion.length < 10 || newComment.descripcion.length > 100) {
+        setCommentError('El comentario debe tener entre 10 y 100 caracteres.');
         return;
       }
 
@@ -242,23 +264,24 @@ const Comentarios2 = ({ productId }) => {
               <small>{newComment.descripcion.length}/100 caracteres</small>
             </div>
             <div>
-              {hasUserCommented() ? (
-                <>
-                  <button onClick={handleUpdateComment} className="btn btn-primary mt-2" disabled={showMessage}>
-                    Actualizar Comentario
-                  </button>
-                  {showMessage && (
-                    <p style={{ color: 'red', marginTop: '10px' }}>
-                      Ya has comentado en este producto. Puedes actualizar tu comentario.
-                    </p>
-                  )}
-                </>
-              ) : (
-                <button onClick={handlePostComment} className="btn btn-primary mt-2">
-                  Publicar Comentario
-                </button>
-              )}
-            </div>
+            {hasUserCommented() === undefined || !hasUserCommented() ? (
+    <button onClick={handlePostComment} className="btn btn-primary mt-2">
+      Publicar Comentario
+    </button>
+  ) : (
+    <>
+      <button onClick={handleUpdateComment} className="btn btn-primary mt-2" disabled={showMessage}>
+        Actualizar Comentario
+      </button>
+      {showMessage && (
+        <p style={{ color: 'red', marginTop: '10px' }}>
+          Ya has comentado en este producto. Puedes actualizar tu comentario.
+        </p>
+      )}
+    </>
+  )}
+</div>
+
           </div>
         </div>
       )}
