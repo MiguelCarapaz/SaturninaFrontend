@@ -21,7 +21,7 @@ export function Comments2() {
   const [showMessage, setShowMessage] = useState(false);
   const [commentError, setCommentError] = useState('');
 
-  const [userComment, setUserComment] = useState(null);
+  const [userComment, setUserComment] = useState({});
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -59,12 +59,18 @@ export function Comments2() {
     }
   };
 
-  const handleCreateComment = async () => {
+  const handleCreateOrUpdateComment = async () => {
     try {
-      const storedId = localStorage.getItem('id');
-  
-      if (!auth || !auth.authToken || !storedId) {
+      if (!auth || !auth.authToken) {
         console.error('Credenciales de usuario no válidas.');
+        return;
+      }
+  
+      const storedId = localStorage.getItem('id');
+      const userId = storedId || (userComment && userComment.user_id && userComment.user_id.id);
+  
+      if (!userId) {
+        console.error('No se puede obtener el ID del usuario.');
         return;
       }
   
@@ -78,18 +84,19 @@ export function Comments2() {
         return;
       }
   
-      if (newComment.descripcion.length > 100) {
-        setCommentError('El comentario no puede exceder los 100 caracteres.');
-        return;
-      }
-  
       if (newComment.descripcion.length < 10 || newComment.descripcion.length > 100) {
         setCommentError('El comentario debe tener entre 10 y 100 caracteres.');
         return;
       }
   
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/comments-general`, {
-        method: 'POST',
+      const endpoint = userComment && userComment.id
+        ? `${import.meta.env.VITE_API_BASE_URL}/comments-general/${userComment.id}`
+        : `${import.meta.env.VITE_API_BASE_URL}/comments-general`;
+  
+      const method = userComment && userComment.id ? 'PUT' : 'POST';
+  
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${auth.authToken}`,
@@ -97,104 +104,28 @@ export function Comments2() {
         body: JSON.stringify({
           descripcion: newComment.descripcion,
           calificacion: newComment.calificacion,
-          user_id: storedId,
+          user_id: userId,
         }),
       });
   
       if (response.ok) {
         const data = await response.json();
   
-        setComments([...comments, data.result]);
-        setNewComment({ descripcion: '', calificacion: 0 });
-        setCommentError('');
-
-        // Esperar a que la operación de creación se complete antes de recargar los comentarios
-        await setReloadComments((prev) => !prev);
-  
-        Swal.fire({
-          icon: 'success',
-          title: 'Comentario creado exitosamente',
-          showConfirmButton: false,
-          timer: 1500,
-        }).then(() => {
-          window.location.reload();
-        });
-        
-      } else {
-        const errorData = await response.json();
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al realizar la solicitud',
-          text: 'Hubo un problema al crear el comentario. Por favor, inténtalo de nuevo.',
-        });
-        console.error('Error al realizar la solicitud POST:', errorData);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud POST:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al crear comentario',
-        text: 'Hubo un problema al crear el comentario. Por favor, inténtalo de nuevo.',
-      });
-    }
-  };
-  
-  const handleUpdateComment = async () => {
-    try {
-      const storedId = localStorage.getItem('id');
-    
-      if (!auth || !auth.authToken || !storedId) {
-        console.error('Credenciales de usuario no válidas.');
-        return;
-      }
-    
-      if (!newComment.descripcion) {
-        setCommentError('Campo de comentario obligatorio');
-        return;
-      }
-    
-      if (!userComment || !userComment.id) {
-        console.error('No hay comentario para actualizar');
-        return;
-      }
-  
-      if (newComment.descripcion.length < 10 || newComment.descripcion.length > 100) {
-        setCommentError('El comentario debe tener entre 10 y 100 caracteres.');
-        return;
-      }
-    
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/comments-general/${userComment.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${auth.authToken}`,
-        },
-        body: JSON.stringify({
-          descripcion: newComment.descripcion,
-          calificacion: newComment.calificacion !== 0 ? newComment.calificacion : userComment.calificacion,
-          user_id: storedId,
-        }),
-      });
-    
-      if (response.ok) {
-        const data = await response.json();
-    
-        if (data.detail && data.detail.msg === "Tu comentario se ha actualizado") {
+        if (userComment && userComment.id) {
           const updatedComments = comments.map((comment) =>
             comment.id === userComment.id ? { ...comment, descripcion: newComment.descripcion } : comment
           );
-    
+  
           setComments(updatedComments);
-    
+  
           const updatedUserComment = updatedComments.find((comment) => comment.id === userComment.id);
-          setUserComment(updatedUserComment); 
-    
+          setUserComment(updatedUserComment);
+  
           setNewComment({ descripcion: '', calificacion: 0 });
           setCommentError('');
   
-          // Esperar a que la operación de actualización se complete antes de recargar los comentarios
           await setReloadComments((prev) => !prev);
-    
+  
           Swal.fire({
             icon: 'success',
             title: 'Comentario actualizado exitosamente',
@@ -202,30 +133,39 @@ export function Comments2() {
             timer: 1500,
           });
         } else {
-          console.error('La respuesta del servidor no contiene el mensaje esperado:', data);
+          setComments([...comments, data.result]);
+          setNewComment({ descripcion: '', calificacion: 0 });
+          setCommentError('');
+  
+          await setReloadComments((prev) => !prev);
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Comentario creado exitosamente',
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          window.location.reload();
         }
       } else {
         const errorData = await response.json();
-        console.error('Error al realizar la solicitud PUT:', errorData);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al realizar la solicitud',
+          text: 'Hubo un problema al procesar el comentario. Por favor, inténtalo de nuevo.',
+        });
+        console.error('Error al realizar la solicitud:', errorData);
       }
     } catch (error) {
-      console.error('Error en la solicitud PUT:', error);
+      console.error('Error al procesar el comentario:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Error al actualizar comentario',
-        text: 'Hubo un problema al actualizar el comentario. Por favor, inténtalo de nuevo.',
+        title: 'Error al procesar comentario',
+        text: 'Hubo un problema al procesar el comentario. Por favor, inténtalo de nuevo.',
       });
     }
   };
   
-
-  const handleCreateOrUpdateComment = async () => {
-    if (userComment && userComment.id) {
-      await handleUpdateComment();
-    } else {
-      await handleCreateComment();
-    }
-  };
   
 
   return (
@@ -263,8 +203,8 @@ export function Comments2() {
             )}
           </div>
           <button onClick={handleCreateOrUpdateComment} className="btn btn-primary mt-2">
-            {userComment ? 'Actualizar Comentario' : 'Crear Comentario'}
-          </button>
+          {userComment && userComment.id ? 'Actualizar Comentario' : 'Crear Comentario'}
+        </button>
         </div>
       </div>
       <div style={styles.controls}>
@@ -278,15 +218,13 @@ export function Comments2() {
       <div style={{ ...styles.commentsContainer, marginLeft: scrollPosition + 'px' }} className="comments-scroll">
         {comments && comments.map((comment) => (
           <div key={comment.id} style={styles.commentCard}>
-            {comment && <StarRatingGener2 rating={comment.calificacion} />}
+         {comment && comment.calificacion && <StarRatingGener2 rating={comment.calificacion} />}
             <div style={styles.userInfo}>
-              <small>{comment.user_id?.nombre || 'Nombre Desconocido'} {comment.user_id?.apellido || 'Apellido Desconocido'}</small>
+            <b><small>{comment.user_id && comment.user_id.nombre && comment.user_id.apellido && `${comment.user_id.nombre} ${comment.user_id.apellido}`}</small></b>
               <IoCheckmarkCircle style={styles.checkIcon} />
             </div>
-            <p>{comment.descripcion}</p>
-            {comment.user_id?.id === localStorage.getItem('id') && (
-  <button onClick={() => setUserComment(comment)}>Actualizar</button>
-)}
+            <p>{comment.descripcion.replace(/(.{30})/g, "$1\n")}</p>
+            {comment.user_id?.id === localStorage.getItem('id')}
           </div>
         ))}
       </div>

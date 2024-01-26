@@ -136,7 +136,7 @@ export function Comments3() {
                   style={styles.deleteIcon}
                 />
               </div>
-              <p>{comment.descripcion}</p>
+              <p>{comment.descripcion.replace(/(.{30})/g, "$1\n")}</p>
             </div>
           ))}
         </div>

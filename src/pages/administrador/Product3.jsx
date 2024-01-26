@@ -113,28 +113,30 @@ const Product3 = () => {
               <h3 className="display-6 my-4">${product.precio}</h3>
               <p className="lead">{product.descripcion}</p>
 
-              {/* Mostrar colores si existen */}
               {product.colores && product.colores.length > 0 && (
                 <div>
-                  <h5>Colores:</h5>
-                  <ul>
+                  <h5 style={{ display: 'inline-block', marginRight: '10px' }}>Colores:</h5>
                     {product.colores.map((color, index) => (
-                      <li key={index}>{color.name}</li>
+                    <span key={index}>
+                    {color.name}
+                    {index < product.colores.length - 1 && ', '}
+                    </span>
                     ))}
-                  </ul>
                 </div>
               )}
 
-              {/* Mostrar tallas si existen */}
               {product.tallas && product.tallas.length > 0 && (
                 <div>
-                  <h5>Tallas:</h5>
-                  <ul>
-                    {product.tallas.map((talla, index) => (
-                      <li key={index}>{talla.name}</li>
-                    ))}
-                  </ul>
-                </div>
+              <h5 style={{ display: 'inline-block', marginRight: '10px' }}>Tallas:</h5>
+              {product.tallas.map((talla, index) => (
+                <span key={index}>
+                  {talla.name}
+                  {index < product.tallas.length - 1 && ', '}
+                </span>
+              ))}
+            </div>
+
+
               )}
 
         

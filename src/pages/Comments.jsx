@@ -53,7 +53,7 @@ export function Comments() {
               <b>{comment.user_id.nombre} {comment.user_id.apellido}</b> 
               <IoCheckmarkCircle style={styles.checkIcon} />
             </div>
-            <p>{comment.descripcion}</p>
+            <p>{comment.descripcion.replace(/(.{30})/g, "$1\n")}</p>
           </div>
         ))}
       </div>
