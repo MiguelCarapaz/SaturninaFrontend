@@ -159,7 +159,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Motivo:</strong> ${pedido.descripcion}</p>
         <p><strong>Voucher:</strong></p>
-        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto"style="max-width: 60%;" class="mx-auto my-3">` : ''}
+        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto"style="max-width: 40%;" class="mx-auto my-3">` : ''}
     `,
       showCloseButton: true,
     });
@@ -274,7 +274,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         if (newTransferImage) {
           formData.append("transfer_image", newTransferImage);
         } else {
-          formData.append("transfer_image", null);
+          formData.append("transfer_image", "");
         }
           try {
             const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/order/${pedido.id_orden.id}`, formData, {
