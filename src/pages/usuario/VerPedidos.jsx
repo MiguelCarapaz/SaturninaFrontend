@@ -271,8 +271,11 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
             email: newEmail,
             telefono: newTelefono,
           }));
+        if (newTransferImage) {
           formData.append("transfer_image", newTransferImage);
-
+        } else {
+          formData.append("transfer_image", null);
+        }
           try {
             const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/order/${pedido.id_orden.id}`, formData, {
               headers: {
