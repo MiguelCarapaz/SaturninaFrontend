@@ -32,7 +32,6 @@ const Checkout = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Datos del perfil:", data);
         setUserProfileData({
           nombre: data.detail.nombre || "",
           apellido: data.detail.apellido || "",
@@ -78,7 +77,6 @@ const Checkout = () => {
   };
 
   const handleConfirmPedido = async (values, { setSubmitting, setFieldValue, setStatus }) => {
-    console.log("values", values)
     const requiredFields = ["nombre", "apellido", "direccion", "email", "telefono", "descripcion", "transfer_image"];
     const incompleteFields = requiredFields.filter((field) => !values[field]);
 
@@ -153,7 +151,6 @@ const Checkout = () => {
       const formData = new FormData();
       formData.append("data", JSON.stringify(orderData));
       formData.append("transfer_image", values.transfer_image);
-      console.log("datos:", formData.get("data"));
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/order`, {
         method: "POST",

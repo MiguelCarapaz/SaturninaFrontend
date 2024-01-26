@@ -126,7 +126,6 @@ const Perfil2 = () => {
         })
           .then((response) => {
             if (response.ok) {
-              console.log('Datos actualizados correctamente');
               setUpdateSuccess(true);
               Swal.fire({
                 icon: 'success',
@@ -191,7 +190,6 @@ const Perfil2 = () => {
     })
       .then((response) => {
         if (response.ok) {
-          console.log('Contraseña actualizada correctamente');
           Swal.fire({
             icon: 'success',
             title: 'Éxito',

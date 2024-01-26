@@ -32,9 +32,7 @@ const Comentarios = ({ productId }) => {
           .filter(comment => comment.id_producto === formattedProductId);
 
         setComments(fetchedComments);
-        console.log('Comentarios del producto:', fetchedComments);
       } catch (error) {
-        console.error("Error fetching comments:", error);
       } finally {
         setLoading(false);
       }

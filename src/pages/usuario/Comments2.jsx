@@ -40,9 +40,6 @@ export function Comments2() {
           const storedId = localStorage.getItem('id');
           const currentUserComment = data.detail[0].result.find((comment) => comment.user_id?.id === storedId);
           setUserComment(currentUserComment || { calificacion: 0, descripcion: '' });
-  
-          console.log('Fetched comments:', data.detail[0].result);
-          console.log('User comment:', currentUserComment);
         }
       } catch (error) {
         console.error('Error fetching comments:', error);

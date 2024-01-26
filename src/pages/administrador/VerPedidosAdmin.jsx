@@ -36,8 +36,6 @@ const VerPedidosAdmin = () => {
         },
       });
 
-      console.log('API Response:', response);
-
       if (response.data && response.data.detail && response.data.detail[0].result) {
         setPedidos(response.data.detail[0].result);
         setSelectedPedido(response.data.detail[0].result[0]);
@@ -89,8 +87,6 @@ const VerPedidosAdmin = () => {
             },
           }
         );
-
-        console.log('Actualización de estado exitosa:', response);
         Swal.fire({
           icon: 'success',
           title: '¡Estado actualizado!',

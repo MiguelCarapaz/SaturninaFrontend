@@ -89,15 +89,10 @@ const Login = () => {
           } else if (role === "rol:vuqn7k4vw0m1a3wt7fkb") {
             navigate("/usuario/dashboard");
           } else {
-            console.error("Rol desconocido:", role);
           }
 
-          console.log("Token de autenticación:", authToken);
-          console.log("id:", id);
-          console.log("Rol:", role);
-          console.log("Correo electrónico:", userEmail);
+
         } else {
-          console.error("El token no se recibió en la respuesta.");
         }
       } else {
         const data = await response.json();

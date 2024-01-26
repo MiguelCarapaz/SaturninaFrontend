@@ -108,8 +108,6 @@ const NuevoProducto = () => {
         colores: values.colores || [],
       };
 
-      console.log("Datos del nuevo producto a enviar:", productData);
-
       const formData = new FormData();
       
       // Agregar cada imagen al formData
@@ -128,7 +126,6 @@ const NuevoProducto = () => {
       });
 
       if (response.ok) {
-        console.log("Nuevo producto creado exitosamente");
         Swal.fire({
           icon: 'success',
           title: 'Producto creado',
@@ -140,7 +137,6 @@ const NuevoProducto = () => {
       } else {
         if (response.status === 422) {
           const data = await response.json();
-          console.log("Error 422 al crear el nuevo producto:", data.error || "Error desconocido");
           Swal.fire({
             icon: 'error',
             title: 'Error al crear el nuevo producto',
@@ -151,7 +147,6 @@ const NuevoProducto = () => {
           });
         } else if (response.status === 409) {
           const data = await response.json();
-          console.log("Error 409 al crear el nuevo producto:", data.error || "Este producto ya existe");
           Swal.fire({
             icon: 'error',
             title: 'Error al crear el nuevo producto',
@@ -162,7 +157,6 @@ const NuevoProducto = () => {
           });
         } else {
           const data = await response.json();
-          console.log("Error al crear el nuevo producto:", data.error || "Error desconocido");
           Swal.fire({
             icon: 'error',
             title: 'Error al crear el nuevo producto',

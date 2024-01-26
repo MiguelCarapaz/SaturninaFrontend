@@ -32,15 +32,9 @@ const ActualizarProducto = () => {
         );
         if (response.ok) {
           const productDetails = await response.json();
-          console.log("Detalles del producto:", productDetails);
 
           // Asegurémonos de que la estructura sea correcta antes de extraer los datos
           if (productDetails.detail) {
-            console.log(
-              "Detalles del producto - imágenes:",
-              productDetails.detail.imagen
-            );
-
             setInitialValues({
               nombre_producto: productDetails.detail.name || "",
               descripcion: productDetails.detail.descripcion || "",
@@ -89,11 +83,6 @@ const ActualizarProducto = () => {
     const files = event.currentTarget.files;
     const imagenesArray = Array.from(files);
 
-    console.log(
-      "Nombres de las imágenes:",
-      imagenesArray.map((file) => file.name)
-    );
-
     const currentImages = [...(previewImages || []), ...imagenesArray];
     setPreviewImages(currentImages);
 
@@ -112,7 +101,6 @@ const ActualizarProducto = () => {
 
   const handleSubmit = async (values, actions) => {
     try {
-      console.log("Valores del formulario al enviar:", values);
 
       const productData = {
         nombre_producto: values.nombre_producto || "",
@@ -123,18 +111,13 @@ const ActualizarProducto = () => {
         colores: values.colores || [],
       };
 
-      console.log("Datos del producto a actualizar:", productData);
-
       const formData = new FormData();
 
       if (values.imagenes_producto && values.imagenes_producto.length > 0) {
-        console.log("Imágenes a enviar:");
         values.imagenes_producto.forEach((image, i) => {
-          console.log(`Imagen ${i + 1}:`, image);
           formData.append("imagen_producto", image);
         });
       }
-      console.log("Imagen del producto", values.imagenes_producto);
 
       formData.append("data", JSON.stringify(productData));
 
@@ -272,17 +255,9 @@ const ActualizarProducto = () => {
                       placeholder="Ingresa el nombre del producto"
                       value={values.nombre_producto}
                       onChange={(event) => {
-                        console.log(
-                          "Valor actual del campo Nombre del Producto:",
-                          event.target.value
-                        );
                         setFieldValue("nombre_producto", event.target.value);
                       }}
                       onBlur={() => {
-                        console.log(
-                          "Valor actual del campo Nombre del Producto al salir del campo:",
-                          values.nombre_producto.trim()
-                        );
                         setFieldValue(
                           "nombre_producto",
                           values.nombre_producto.trim()
@@ -392,17 +367,9 @@ const ActualizarProducto = () => {
                       className="form-control"
                       value={values.id_categoria}
                       onChange={(event) => {
-                        console.log(
-                          "Valor actual del campo Categoría:",
-                          event.target.value
-                        );
                         setFieldValue("id_categoria", event.target.value);
                       }}
                       onBlur={() => {
-                        console.log(
-                          "Valor actual del campo Categoría al salir del campo:",
-                          values.id_categoria.trim()
-                        );
                         setFieldValue(
                           "id_categoria",
                           values.id_categoria.trim()

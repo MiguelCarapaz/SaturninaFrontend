@@ -36,7 +36,6 @@ const Cart = () => {
   };
 
   const removeItem = (product, reduceQuantity) => {
-    console.log('Reducción de cantidad:', reduceQuantity);
     if (reduceQuantity && product.cantidad > 1) {
       dispatch({ type: DEL_CART, payload: product, reduceQuantity: true });
     } else {
@@ -45,7 +44,6 @@ const Cart = () => {
   };
 
   const deleteItem = (product) => {
-    console.log('Eliminando producto:', product);
     dispatch(eliminarDelCarrito(product));
   };
 

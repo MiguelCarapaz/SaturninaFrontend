@@ -92,7 +92,6 @@ const Products3 = () => {
 
       if (response.ok) {
         setData((prevData) => prevData.filter((product) => product.id !== productId));
-        console.log(`Producto con ID ${productId} eliminado con éxito.`);
 
         Swal.fire({
           icon: 'success',
@@ -121,7 +120,6 @@ const Products3 = () => {
   };
 
   const handleUpdate = (productId) => {
-    console.log(`Actualizar producto con ID: ${productId}`);
     navigate(`/admin/actualizar-producto/${productId}`);
   };
 

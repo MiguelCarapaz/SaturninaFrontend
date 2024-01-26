@@ -65,9 +65,6 @@ const VerPedidos = () => {
           },
           maxRedirects: 0,
         });
-
-        console.log('API Response:', response);
-
         if (response.data && response.data.detail && response.data.detail[0].result) {
           setPedidos(response.data.detail[0].result);
           setPedidoStatus(response.data.detail[0].result.length > 0 ? response.data.detail[0].result[0].status : '');
@@ -283,9 +280,6 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
                 Authorization: `Bearer ${auth.authToken}`,
               },
             });
-
-            console.log('Actualización exitosa:', response);
-
             if (isMounted.current) {
               Swal.fire({
                 icon: 'success',

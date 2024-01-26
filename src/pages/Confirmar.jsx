@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 export const Confirmar = () => {
     const { token } = useParams();
     const [mensaje, setMensaje] = useState({});
-    console.log(token)
     const verifyToken = async () => {
       try {
         const response = await fetch(
@@ -42,7 +41,6 @@ export const Confirmar = () => {
     useEffect(() => {
       verifyToken();
     }, []);
-        console.log(mensaje);
 
     return (
       <div

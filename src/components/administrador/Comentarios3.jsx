@@ -53,9 +53,7 @@ const Comentarios3 = ({ productId }) => {
           .filter((comment) => comment.id_producto === formattedProductId);
 
         setComments(fetchedComments);
-        console.log('Comentarios del producto:', fetchedComments);
       } catch (error) {
-        console.error('Error fetching comments:', error);
       } finally {
         setLoading(false);
       }
@@ -67,7 +65,6 @@ const Comentarios3 = ({ productId }) => {
   const handleDeleteComment = async (commentId) => {
     try {
       const storedId = localStorage.getItem('id');
-      console.log('Stored ID:', storedId);
 
       if (!perfilLoaded || !storedId) {
         console.error('ID de usuario no válido:', storedId);
@@ -84,12 +81,9 @@ const Comentarios3 = ({ productId }) => {
 
       if (response.ok) {
         setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
-        console.log('Comentario eliminado con éxito.');
       } else {
-        console.error('Error al intentar eliminar el comentario.');
       }
     } catch (error) {
-      console.error('Error al intentar eliminar el comentario:', error);
     }
   };
 

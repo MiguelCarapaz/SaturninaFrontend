@@ -32,7 +32,6 @@ const Comentarios2 = ({ productId }) => {
   const hasUserCommented = () => {
     const storedId = localStorage.getItem('id');
     const result = userComment !== undefined && comments.some(comment => comment.user_id?.id === storedId);
-    console.log('hasUserCommented:', result);
     return result;
   };
   
@@ -42,10 +41,8 @@ const Comentarios2 = ({ productId }) => {
     setLoading(true);
     try {
       const storedId = localStorage.getItem('id');
-      console.log('Stored ID:', storedId);
 
       if (!perfilLoaded || !storedId) {
-        console.error('ID de usuario no válido:', storedId);
         return;
       }
 
@@ -62,9 +59,7 @@ const Comentarios2 = ({ productId }) => {
       const userComment = fetchedComments.find((comment) => comment.user_id?.id === storedId);
       setUserComment(userComment);
 
-      console.log('Comentarios del producto:', fetchedComments);
     } catch (error) {
-      console.error('Error fetching comments:', error);
     } finally {
       setLoading(false);
       setInitialCommentsLoaded(true);
@@ -88,11 +83,8 @@ const Comentarios2 = ({ productId }) => {
   const handlePostComment = async () => {
     try {
       const storedId = localStorage.getItem('id');
-      console.log('Stored ID:', storedId);
 
       if (!perfilLoaded || !storedId) {
-        console.error('ID de usuario no válido:', storedId);
-        console.error('Perfil no cargado correctamente.');
         return;
       }
 
@@ -171,10 +163,8 @@ const Comentarios2 = ({ productId }) => {
   const handleUpdateComment = async () => {
     try {
       const storedId = localStorage.getItem('id');
-      console.log('Stored ID:', storedId);
 
       if (!perfilLoaded || !storedId) {
-        console.error('ID de usuario no válido:', storedId);
         return;
       }
 
