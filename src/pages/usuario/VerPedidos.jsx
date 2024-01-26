@@ -236,7 +236,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
             console.error('Elemento con id "telefonoError" no encontrado en el DOM');
           }
 
-          if (!newNombre || !newApellido || !newDireccion || !newEmail || !newTelefono || !newTransferImage) {
+          if (!newNombre || !newApellido || !newDireccion || !newEmail || !newTelefono) {
             Swal.fire({
               icon: 'error',
               title: 'Campos obligatorios',
