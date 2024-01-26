@@ -25,7 +25,7 @@ const Navbar2 = ({ userData }) => {
     <nav className="flex flex-col md:flex-row items-center justify-evenly w-full p-2 bg-white">
       <div className="flex items-center justify-between w-full md:w-auto">
         <a href="/usuario/dashboard">
-          <img src="/public/assets/logo2.png" alt="Logo" />
+          <img src="/assets/logo2.png" alt="Logo" />
         </a>
         <div className="md:hidden cursor-pointer" onClick={toggleMenu}>
           <AiOutlineMenu className="text-black text-2xl" />
