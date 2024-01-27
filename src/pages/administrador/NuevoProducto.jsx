@@ -135,7 +135,7 @@ const NuevoProducto = () => {
     actions.resetForm();
     navigate("/admin/dashboard");
   } else {
-    if (response.status === 406) {
+    if (response.status === 406 || response.status===404) {
       Swal.fire({
         icon: 'error',
         title: 'Error en las imágenes',
