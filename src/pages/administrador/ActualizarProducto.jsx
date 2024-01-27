@@ -180,6 +180,7 @@ const ActualizarProducto = () => {
     text: "Error en la solicitud de actualización del producto: " + error.message,
   });
   actions.setSubmitting(false);
+  }
 }
     
   return (
