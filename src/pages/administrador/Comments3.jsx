@@ -181,8 +181,9 @@ const styles = {
   },
   controls: {
     display: 'flex',
-    marginLeft:'1239px', 
+    marginLeft:'auto', 
     alignItems: 'center',
     marginTop: '10px',
+    marginBottom:'10px'
   },
 };
