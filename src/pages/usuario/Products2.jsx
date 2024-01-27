@@ -1,14 +1,22 @@
-import React from 'react'
-import { Footer2, Navbar2, Product2 } from "../../components/usuario/usuario"
+import React from 'react';
+import { Footer2, Navbar2, Product2 } from "../../components/usuario/usuario";
 
 const Products2 = () => {
   return (
-    <>
-      <Navbar2 />
-      <Product2 />
-      <Footer2 />
-    </>
-  )
-}
+    <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>
+      
+      <main className="flex-grow container mx-auto p-4">
+        <Product2 />
+      </main>
 
-export default Products2
+      <footer className="mt-auto">
+        <Footer2 />
+      </footer>
+    </div>
+  );
+};
+
+export default Products2;

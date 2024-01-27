@@ -310,7 +310,10 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
 
   return (
     <>
-      <Navbar2 />
+         <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>
       <div className="container">
         <h2 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
           Pedidos
@@ -393,7 +396,8 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
           </ul>
         </nav>
       </div>
-      <Footer2 />
+      </section>
+      <Footer2 className="mt-auto" />
     </>
   );
 };

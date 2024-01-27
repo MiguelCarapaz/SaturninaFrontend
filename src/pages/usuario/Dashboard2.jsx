@@ -9,10 +9,10 @@ function Dashboard2() {
         <Navbar2 />
       </header>
 
-      <main>
+      <main className="mt-auto">
         <Product2 />
       </main>
-      <Footer2 />
+      <Footer2 className="mt-auto"/>
     </>
   );
 }

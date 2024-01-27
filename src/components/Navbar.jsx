@@ -43,9 +43,9 @@ const Navbar = () => {
       </div>
 
       <section
-        className={`flex flex-col md:flex md:flex-row items-center w-full justify-evenly gap-3 text-lg ${
-          showMenu ? "flex flex-col justify-evenly w-full h-dvh " : "hidden"
-        }`}
+  className={`flex flex-col md:flex md:flex-row items-center w-full justify-evenly gap-3 text-lg ${
+    showMenu ? "flex flex-col justify-evenly w-full h-dvh " : "hidden"
+  } md:flex`}
       >
         <NavLink
           to="/dashboard"

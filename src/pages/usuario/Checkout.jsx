@@ -203,8 +203,10 @@ const Checkout = () => {
 
   return (
     <>
-      <Navbar2 />
-      <div className="container" style={{ maxWidth: "10000px" }}>
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>      <div className="container" style={{ maxWidth: "10000px" }}>
         <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
           Checkout
         </h2>
@@ -408,7 +410,8 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-      <Footer2 />
+      </section>
+      <Footer2 className="mt-auto"/>
     </>
   );
 };

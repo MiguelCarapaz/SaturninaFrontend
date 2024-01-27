@@ -8,10 +8,10 @@ function Dashboard3() {
       <header className="sticky top-0 z-50">
         <Navbar3 />
       </header>
-      <main>
+      <main className="mt-auto">
         <Product3 />
       </main>
-      <Footer3 />
+      <Footer3 className="mt-auto"/>
     </>
   );
 }

@@ -194,8 +194,10 @@ const Categorias = () => {
 
   return (
     <>
-      <Navbar3 />
-      <div
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar3 />
+      </header>      <div
         className="container"
         style={{  maxWidth: "10000px" }}
       >
@@ -314,7 +316,8 @@ const Categorias = () => {
           </div>
         )}
       </div>
-      <Footer3 />
+      </section>
+      <Footer3 className="mt-auto"/>
     </>
   );
 };

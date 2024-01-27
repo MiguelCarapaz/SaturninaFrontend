@@ -128,7 +128,7 @@ const VerPedidosAdmin = () => {
         <p><strong>Total:</strong> $${pedido.id_producto.precio}</p>
         <p><strong>Estado:</strong> ${pedido.status}</p>
         <p><strong>Voucher:</strong></p>
-        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto" style="max-width: 60%; class="mx-auto my-3">` : ''}
+        ${voucher ? `<img src="${voucher.secure_url}" alt="Voucher del producto"style="max-width: 40%;" class="mx-auto my-3">` : ''}
 
       `,
       showCloseButton: true,
@@ -183,7 +183,10 @@ const VerPedidosAdmin = () => {
 
   return (
     <>
-      <Navbar3 />
+       <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar3 />
+      </header>
       <div className="container">
         <div className="my-4">
           <h2 className="text-center display-6" style={{ fontFamily: 'Gotham, sans-serif' }}>
@@ -273,7 +276,8 @@ const VerPedidosAdmin = () => {
           </ul>
         </nav>
       </div>
-      <Footer3 />
+      </section>
+      <Footer3 className="mt-auto"/>
     </>
   );
 };

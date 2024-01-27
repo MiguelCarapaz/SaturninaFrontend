@@ -213,8 +213,10 @@ const Perfil = () => {
 
   return (
     <>
-      <Navbar2 />
-      <div className=" flex flex-row w-full my-5 py-2 items-center justify-center">
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>      <div className=" flex flex-row w-full my-5 py-2 items-center justify-center">
         <div className="card mb-4 w-3/4">
           <div className="card-body w-full">
             <div className="flex flex-row justify-evenly items-start w-full">
@@ -446,7 +448,8 @@ const Perfil = () => {
           </div>
         </div>
       </div>
-      <Footer2 />
+      </section>
+      <Footer2 className="mt-auto"/>
     </>
   );
 };

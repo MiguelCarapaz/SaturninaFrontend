@@ -149,12 +149,20 @@ export function Comments2() {
         }
       } else {
         const errorData = await response.json();
+        if (response.status === 406) {
+          Swal.fire({
+              icon: 'error',
+              title: 'No puedes comentar',
+              text: 'Necesitas esperar a que tu compra esté finalizada o comprar algo.',
+          });   
+          }else{
         Swal.fire({
           icon: 'error',
           title: 'Error al realizar la solicitud',
           text: 'Hubo un problema al procesar el comentario. Por favor, inténtalo de nuevo.',
         });
         console.error('Error al realizar la solicitud:', errorData);
+      }
       }
     } catch (error) {
       console.error('Error al procesar el comentario:', error);
@@ -171,7 +179,7 @@ export function Comments2() {
   return (
     <div>
       <header className="sticky top-0 z-50">
-        <Navbar2 />
+        <Navbar2 className="mt-auto"/>
       </header>
       <h2 className="text-center mt-10" id="comentarios">
         Comentarios

@@ -1,3 +1,4 @@
+import React from "react";
 import { Navbar, Product, Footer } from "../components/Dashboard";
 import Home_Saturnina from "./Home_Saturnina";
 import { Comments } from "./Comments";
@@ -5,20 +6,19 @@ import { Comments } from "./Comments";
 function Dashboard() {
   return (
     <>
-      <header className="sticky top-0 z-50">
+      <header className="sticky top-0 z-50 mt-4 md:mt-0">
         <Navbar />
       </header>
-      <main>
+      <main className="mb-8 md:mb-12">
         <Home_Saturnina />
         <Product />
-        <Comments/>
+        <Comments />
       </main>
-
-      <footer>
+      <footer className="mt-auto">
         <Footer />
       </footer>
     </>
   );
 }
 
-export default Dashboard
+export default Dashboard;

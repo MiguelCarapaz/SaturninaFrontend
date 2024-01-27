@@ -242,15 +242,18 @@ const Cart = () => {
 
   return (
     <>
-      <Navbar2 />
-      <div className="container" style={{ maxWidth: "10000px" }}>
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>      <div className="container" style={{ maxWidth: "10000px" }}>
         <h2 className="text-center display-6" style={{ fontFamily: "Gotham, sans-serif" }}>
           Carrito
         </h2>
         <hr />
         {state.length > 0 ? <ShowCart /> : <EmptyCart />}
       </div>
-      <Footer2 />
+      </section>
+      <Footer2 className="mt-auto"/>
       <style>{`
         .image-container {
           position: relative;

@@ -167,8 +167,10 @@ const Recuperar = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="container" style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}>
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar />
+      </header>      <div className="container" style={{ backgroundColor: "rgba(249, 222, 230, 0.4)", maxWidth: "10000px" }}>
         <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
           {showChangePassword ? 'Cambiar Contraseña' : 'Recuperar Cuenta'}
         </h2>
@@ -179,7 +181,8 @@ const Recuperar = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      </section>
+      <Footer className="mt-auto" />
     </>
   );
 };

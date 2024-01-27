@@ -185,8 +185,10 @@ const NuevoProducto = () => {
 
   return (
     <>
-      <Navbar3 />
-      <div className="container" style={{  maxWidth: "10000px" }}>
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar3 />
+      </header>      <div className="container" style={{  maxWidth: "10000px" }}>
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
             <h2 className="display-6 text-center" style={{ fontFamily: "Gotham, sans-serif" }}>
@@ -478,7 +480,8 @@ const NuevoProducto = () => {
           </div>
         </div>
       </div>
-      <Footer3 />
+      </section>
+      <Footer3 className="mt-auto"/>
     </>
   );
 };

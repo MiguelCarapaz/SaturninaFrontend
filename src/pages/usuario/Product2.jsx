@@ -240,14 +240,17 @@ const Product2 = () => {
 
   return (
     <>
-      <Navbar2 />
-      <div className="container">
+    <section className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar2 />
+      </header>      <div className="container">
         <div className="row">{loading ? <Loading /> : <ShowProduct />}</div>
         <div className="row my-5 py-5">
           <div className="d-none d-md-block"></div>
         </div>
       </div>
-      <Footer2 />
+      </section>
+      <Footer2 className="mt-auto" />
       <style>{`
         .image-container {
           position: relative;

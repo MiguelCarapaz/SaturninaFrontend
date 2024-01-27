@@ -60,7 +60,7 @@ const Register = () => {
   };
 
   return (
-    <>
+    <section className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50">
         <Navbar />
       </header>
@@ -71,15 +71,16 @@ const Register = () => {
           backgroundImage: "url('/assets/recorver.svg')",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
+          
         }}
       >
         <h2
-          className=" text-center"
+          className="text-center font-sans mb-4"
           style={{ fontFamily: "Gotham, sans-serif" }}
         >
           Registrar
         </h2>
-        <section className="m-auto my-3 w-7/12 h-3/5 flex flex-col items-center justify-center bg-white border-black rounded-md shadow-lg p-5">
+        <section className="m-auto my-3 w-7/12 h-3/5  flex-col items-center justify-center bg-white border-black rounded-md shadow-lg p-5">
           <Formik
             initialValues={{
               nombre: "",
@@ -92,8 +93,8 @@ const Register = () => {
             onSubmit={handleSubmit}
           >
             {({ isSubmitting, status, values, setFieldValue }) => (
-              <Form>
-                <div className="form my-3">
+              <Form className="space-y-4">
+                <div className="form my-1">
                   <label htmlFor="nombre">Nombre</label>
                   <Field
                     type="text"
@@ -249,10 +250,10 @@ const Register = () => {
           </Formik>
         </section>
       </div>
-      <footer>
+      <footer className="mt-auto">
         <Footer />
       </footer>
-    </>
+      </section>
   );
 };
 

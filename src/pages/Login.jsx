@@ -118,11 +118,11 @@ const Login = () => {
    const esDispositivoMovil = window.innerWidth <= 768;
 
   return (
-    <section>
+    <section className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50">
         <Navbar />
       </header>
-      <section>
+      <section className="flex-grow">
         <h2
           className="text-center mb-4"
           style={{ fontFamily: "Gotham, sans-serif" }}
@@ -136,7 +136,7 @@ const Login = () => {
                 ? "hidden"
                 : "/assets/login.svg"
             })`,
-            backgroundSize: "cover",
+            backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
           }}
         >
@@ -231,7 +231,7 @@ const Login = () => {
           </div>
         </div>
       </section>
-      <footer>
+      <footer className="mt-auto">
         <Footer />
       </footer>
     </section>
