@@ -85,7 +85,6 @@ const Navbar = () => {
             className=" flex items-center justify-center no-underline text-white bg-slate-950 hover:bg-slate-400 font-medium rounded-lg text-xl p-2.5 "
             href="/login"
           >
-            Iniciar sesión
             <AiOutlineUser />
             <span className={`${showMenu ? "flex ml-2" : "hidden"}`}>
               Ingresa
