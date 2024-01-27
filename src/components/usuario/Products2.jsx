@@ -390,7 +390,7 @@ const Products2 = () => {
               product.imagen[currentImageIndex]?.secure_url || "URL_POR_DEFECTO"
             }
             alt={`${product.name}-${currentImageIndex}`}
-            style={{ height: "300px", borderRadius: "30px" }}
+            style={{ height: "350px", borderRadius: "30px" }}
             onMouseDown={handleDragStart}
             onMouseMove={handleDragMove}
             onMouseUp={handleDragEnd}

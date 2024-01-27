@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 function Home_Saturnina() {
     return (
-      <section className="flex flex-row  w-full md:w-auto">
+      <section className="flex flex-row h-full w-full md:w-auto">
         <div className="flex flex-col  md:items-center md:justify-normal justify-center items-center w-full">
           <h1 className=" font-bold mt-5 mb-4">SATURNINA</h1>
           <p className=" text-justify text-xl p-5">

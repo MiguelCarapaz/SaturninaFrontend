@@ -278,9 +278,8 @@ const styles = {
   },
   controls: {
     display: 'flex',
-    marginLeft: 'auto',
+    marginLeft: '1239px',
     alignItems: 'center',
     marginTop: '10px',
-    marginBottom:"10px"
   },
 };

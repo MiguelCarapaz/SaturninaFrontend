@@ -216,8 +216,7 @@ const Perfil2 = () => {
     <section className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50">
         <Navbar3 />
-      </header>      
-      <div className=" flex flex-row w-full my-5 py-2 items-center justify-center">
+      </header>      <div className=" flex flex-row w-full my-5 py-2 items-center justify-center">
         <div className="card mb-4 w-3/4">
           <div className="card-body w-full">
             <div className="flex flex-row justify-evenly items-start w-full">

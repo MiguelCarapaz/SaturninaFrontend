@@ -4,10 +4,11 @@ import { Footer3, Navbar3, Product3 } from "../../components/administrador/admin
 const Products3 = () => {
   return (
     <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50">
+        <Navbar3 />
+      </header>
+      
       <main className="flex-grow container mx-auto p-4">
-        <header className="sticky top-0 z-50">
-          <Navbar3 />
-        </header>
         <Product3 />
       </main>
 

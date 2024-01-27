@@ -101,7 +101,6 @@ const ActualizarProducto = () => {
 
   const handleSubmit = async (values, actions) => {
     try {
-
       const productData = {
         nombre_producto: values.nombre_producto || "",
         id_categoria: values.id_categoria || "",
@@ -110,17 +109,17 @@ const ActualizarProducto = () => {
         tallas: values.tallas || [],
         colores: values.colores || [],
       };
-
+    
       const formData = new FormData();
-
+    
       if (values.imagenes_producto && values.imagenes_producto.length > 0) {
         values.imagenes_producto.forEach((image, i) => {
           formData.append("imagen_producto", image);
         });
       }
-
+    
       formData.append("data", JSON.stringify(productData));
-
+    
       const confirmation = await Swal.fire({
         title: "¿Estás seguro?",
         text: "Esta acción actualizará el producto. ¿Deseas continuar?",
@@ -131,7 +130,7 @@ const ActualizarProducto = () => {
         confirmButtonText: "Sí, actualizar",
         cancelButtonText: "Cancelar",
       });
-
+    
       if (confirmation.isConfirmed) {
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/products/${id}`,
@@ -143,7 +142,7 @@ const ActualizarProducto = () => {
             },
           }
         );
-
+    
         if (response.ok) {
           Swal.fire({
             icon: "success",
@@ -182,8 +181,8 @@ const ActualizarProducto = () => {
       });
       actions.setSubmitting(false);
     }
-}; 
-    
+};    
+
   return (
     <>
     <section className="flex flex-col min-h-screen">
