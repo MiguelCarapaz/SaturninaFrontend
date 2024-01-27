@@ -157,7 +157,7 @@ const Products = () => {
           </section>
           <section className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-row flex-wrap w-full items-center justify-center">
-              <div className="flex flex-row items-center justify-center w-full mb-4">
+              <div className="flex flex-row items-center justify-center mb-4">
                 <input
                   type="text"
                   placeholder="Buscar productos.."
@@ -165,7 +165,6 @@ const Products = () => {
                   onChange={(e) => setSearchInput(e.target.value)}
                   className="rounded-lg p-1 bg-gray-100 text-black placeholder:text-black"
                 />
-                <LuSearch className="text-lg ml-2" />
               </div>
               {currentProducts.map((product, index) => (
                 <ShowProductDetails key={index} product={product} />

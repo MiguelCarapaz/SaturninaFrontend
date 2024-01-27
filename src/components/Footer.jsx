@@ -32,13 +32,13 @@ const Footer = ({ prevPage, nextPage }) => {
     <footer className="bg-slate-100">
       <div className="container mx-auto py-4">
         <div className="flex flex-col md:flex-row md:justify-between">
-          <div className="md:flex md:items-center mb-4 md:mb-0">
+          <div className="md:flex md:items-center mb-4 md:mb-0 flex  flex-col items-center">
             <img
               src="/assets/logo2.png"
               alt="logo-saturnina"
               className="md:mb-0 mb-4"
             />
-            <div className="flex flex-col md:ml-8">
+            <div className="flex flex-col md:ml-8 items-center justify-center">
               <h4 className="mb-2">Términos y Condiciones</h4>
               <NavLink
                 to="/dashboard"

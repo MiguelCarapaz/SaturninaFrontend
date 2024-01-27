@@ -39,9 +39,9 @@ export function Comments() {
   
 
   return (
-    <div className='flex flex-col items-center justify-center'>
+    <div className='flex flex-col items-center justify-center w-full'>
       <h2 className="text-center mt-10" id="comentarios">Comentarios</h2>
-      <div style={styles.controls}>
+      <div style={styles.controls} c>
         <button onClick={() => handleScroll('right')}><BsArrowLeft /></button>
         <button onClick={() => handleScroll('left')}><BsArrowRight /></button>
       </div>
@@ -53,7 +53,7 @@ export function Comments() {
               <b>{comment.user_id.nombre} {comment.user_id.apellido}</b> 
               <IoCheckmarkCircle style={styles.checkIcon} />
             </div>
-            <p>{comment.descripcion.replace(/(.{30})/g, "$1\n")}</p>
+            <p >{comment.descripcion.replace(/(.{30})/g, "$1\n")}</p>
           </div>
         ))}
       </div>
@@ -71,7 +71,8 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '20px',
     padding: '16px',
-    margin: '5px',
+    margin: 'auto',
+    marginBottom:'10px',
     width: '300px',
   },
   userInfo: {
@@ -89,7 +90,7 @@ const styles = {
   },
   controls: {
     display: 'flex',
-    marginLeft:'1239px', 
+    marginLeft:'auto', 
     alignItems: 'center',
     marginTop: '10px',
   },

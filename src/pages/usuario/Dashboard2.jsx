@@ -5,14 +5,13 @@ import { Comments2 } from "./Comments2";
 function Dashboard2() {
   return (
     <>
-      <header className="sticky top-0 z-50">
-        <Navbar2 />
-      </header>
-
       <main className="mt-auto">
+        <header className="sticky top-0 z-50">
+          <Navbar2 />
+        </header>
         <Product2 />
       </main>
-      <Footer2 className="mt-auto"/>
+      <Footer2 className="mt-auto" />
     </>
   );
 }
