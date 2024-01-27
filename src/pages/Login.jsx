@@ -181,8 +181,9 @@ const Login = () => {
                             setFieldValue("showPassword", !values.showPassword)
                           }
                         >
+                          Mostrar
                           {values.showPassword ? (
-                           Mostrar <AiOutlineEye />
+                            <AiOutlineEye />
                           ) : (
                             <AiOutlineEyeInvisible />
                           )}
