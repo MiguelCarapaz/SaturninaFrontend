@@ -125,63 +125,70 @@ const NuevoProducto = () => {
         },
       });
 
-      if (response.ok) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Producto creado',
-          text: 'El nuevo producto ha sido creado exitosamente.',
-        });
-        actions.setSubmitting(false);
-        actions.resetForm();
-        navigate("/admin/dashboard");
-      } else {
-        if (response.status === 422) {
-          const data = await response.json();
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al crear el nuevo producto',
-            text: data.error || 'Error al crear el nuevo producto. Verifica tus datos',
-          });
-          actions.setStatus({
-            error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
-          });
-        } else if (response.status === 409) {
-          const data = await response.json();
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al crear el nuevo producto',
-            text: data.error || 'Este producto ya existe',
-          });
-          actions.setStatus({
-            error: data.error || "Este producto ya existe.",
-          });
-        } else {
-          const data = await response.json();
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al crear el nuevo producto',
-            text: data.error || 'Error desconocido',
-          });
-          actions.setStatus({
-            error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
-          });
-        }
-        actions.setSubmitting(false);
-      }
-  
-    } catch (error) {
-      console.error("Error en la solicitud de creación del nuevo producto:", error);
+  if (response.ok) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Producto creado',
+      text: 'El nuevo producto ha sido creado exitosamente.',
+    });
+    actions.setSubmitting(false);
+    actions.resetForm();
+    navigate("/admin/dashboard");
+  } else {
+    if (response.status === 406) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Error en la solicitud de creación del nuevo producto: ' + error.message,
+        title: 'Error en las imágenes',
+        text: 'Únicamente las extensiones de tipo jpg, jpeg, png y webp están permitidas.',
       });
       actions.setStatus({
-        error: "Error en la solicitud de creación del nuevo producto: " + error.message,
+        error: 'Error en las imágenes. Únicamente las extensiones de tipo jpg, jpeg, png y webp están permitidas.',
       });
-      actions.setSubmitting(false);
+    } else if (response.status === 422) {
+      const data = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear el nuevo producto',
+        text: data.error || 'Error al crear el nuevo producto. Verifica tus datos',
+      });
+      actions.setStatus({
+        error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
+      });
+    } else if (response.status === 409) {
+      const data = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear el nuevo producto',
+        text: data.error || 'Este producto ya existe',
+      });
+      actions.setStatus({
+        error: data.error || "Este producto ya existe.",
+      });
+    } else {
+      const data = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear el nuevo producto',
+        text: data.error || 'Error desconocido',
+      });
+      actions.setStatus({
+        error: data.error || "Error al crear el nuevo producto. Verifica tus datos.",
+      });
     }
-  };
+    actions.setSubmitting(false);
+  }
+} catch (error) {
+  console.error("Error en la solicitud de creación del nuevo producto:", error);
+  Swal.fire({
+    icon: 'error',
+    title: 'Error',
+    text: 'Error en la solicitud de creación del nuevo producto: ' + error.message,
+  });
+  actions.setStatus({
+    error: "Error en la solicitud de creación del nuevo producto: " + error.message,
+  });
+  actions.setSubmitting(false);
+}
 
   return (
     <>
