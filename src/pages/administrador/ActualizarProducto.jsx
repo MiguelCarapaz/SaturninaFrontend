@@ -144,42 +144,44 @@ const ActualizarProducto = () => {
           }
         );
 
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Éxito",
-            text: "Producto actualizado exitosamente.",
-          });
-          actions.setSubmitting(false);
-          navigate("/admin/dashboard");
-        } else {
-          const data = await response.json();
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text:
-              data.error ||
-              "Error al actualizar el producto. Verifica tus datos.",
-          });
-          actions.setSubmitting(false);
-        }
-      }
-    } catch (error) {
-      console.error(
-        "Error en la solicitud de actualización del producto:",
-        error
-      );
+  if (response.ok) {
+    Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: "Producto actualizado exitosamente.",
+    });
+    actions.setSubmitting(false);
+    navigate("/admin/dashboard");
+  } else {
+    if (response.status === 406) {
+      Swal.fire({
+        icon: "error",
+        title: "Error en las imágenes",
+        text: "Únicamente las extensiones de tipo jpg, jpeg, png y webp están permitidas.",
+      });
+      actions.setStatus({
+        error: "Error en las imágenes. Únicamente las extensiones de tipo jpg, jpeg, png y webp están permitidas.",
+      });
+    } else {
+      const data = await response.json();
       Swal.fire({
         icon: "error",
         title: "Error",
-        text:
-          "Error en la solicitud de actualización del producto: " +
-          error.message,
+        text: data.error || "Error al actualizar el producto. Verifica tus datos.",
       });
       actions.setSubmitting(false);
     }
-  };
-
+  }
+} catch (error) {
+  console.error("Error en la solicitud de actualización del producto:", error);
+  Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Error en la solicitud de actualización del producto: " + error.message,
+  });
+  actions.setSubmitting(false);
+}
+    
   return (
     <>
     <section className="flex flex-col min-h-screen">
