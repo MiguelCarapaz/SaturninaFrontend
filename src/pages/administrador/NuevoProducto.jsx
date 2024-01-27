@@ -135,7 +135,7 @@ const NuevoProducto = () => {
     actions.resetForm();
     navigate("/admin/dashboard");
   } else {
-    if (response.status === 406 || response.status===404) {
+    if (response.status === 406) {
       Swal.fire({
         icon: 'error',
         title: 'Error en las imágenes',
@@ -188,6 +188,7 @@ const NuevoProducto = () => {
     error: "Error en la solicitud de creación del nuevo producto: " + error.message,
   });
   actions.setSubmitting(false);
+  }
 }
 
   return (
