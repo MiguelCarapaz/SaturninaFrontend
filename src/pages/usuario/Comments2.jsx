@@ -182,7 +182,7 @@ export function Comments2() {
         <Navbar2 className="mt-auto"/>
       </header>
       <h2 className="text-center mt-10" id="comentarios">
-        Comentarios y/o Sugerencias
+        Comentarios
       </h2>
       <div style={styles.card}>
         <div style={styles.cardContent}>

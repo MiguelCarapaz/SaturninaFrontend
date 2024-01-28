@@ -148,8 +148,8 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
         <p><strong>Producto Adquirido:</strong> ${pedido.id_orden && pedido.id_producto.name}</p>
         ${imagenes ? imagenes.map(imagen => `<img src="${imagen.secure_url}" alt="Imagen del producto" style="max-width: 30%;" class="mx-auto my-3">`).join('') : ''}
         <p><strong>Descripción del Producto:</strong> ${pedido.id_producto.descripcion}</p>
-        <p><strong>Tallas Disponibles:</strong> ${pedido.id_producto.tallas ? pedido.id_producto.tallas.map(talla => talla.name).join(', ') : 'No hay tallas disponibles'}</p>
-        <p><strong>Colores Disponibles:</strong> ${pedido.id_producto.colores ? pedido.id_producto.colores.map(talla => talla.name).join(', ') : 'No hay colores disponibles'}</p>        
+        <p><strong>Talla:</strong> ${pedido.talla !== null ? pedido.talla : 'No hay talla disponibles'}</p>
+        <p><strong>Color:</strong> ${pedido.color !== null ? pedido.color : 'No hay color disponibles'}</p>
         <p><strong>Nombre y Apellido:</strong> ${pedido.id_orden && `${pedido.id_orden.nombre} ${pedido.id_orden.apellido}`}</p>
         <p><strong>Email:</strong> ${pedido.id_orden && pedido.id_orden.email}</p>
         <p><strong>Teléfono:</strong> ${pedido.id_orden && pedido.id_orden.telefono}</p>
