@@ -24,21 +24,23 @@ const VerPedidosAdmin = () => {
   const fetchPedidos = async () => {
     try {
       const userId = localStorage.getItem('id');
-
+  
       if (!userId) {
         console.error('ID de usuario no encontrado en el localStorage');
         return;
       }
-
+  
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/orders`, {
         headers: {
           Authorization: `Bearer ${auth.authToken}`,
         },
       });
-
+  
       if (response.data && response.data.detail && response.data.detail[0].result) {
-        setPedidos(response.data.detail[0].result);
-        setSelectedPedido(response.data.detail[0].result[0]);
+        const filteredPedidos = response.data.detail[0].result.filter(pedido => pedido.id_producto !== null);
+  
+        setPedidos(filteredPedidos);
+        setSelectedPedido(filteredPedidos.length > 0 ? filteredPedidos[0] : null);
       } else {
         console.error('La estructura de la respuesta no es la esperada:', response);
       }
@@ -46,6 +48,7 @@ const VerPedidosAdmin = () => {
       console.error('Error al obtener los pedidos', error);
     }
   };
+  
 
   useEffect(() => {
     fetchPedidos();
@@ -67,7 +70,17 @@ const VerPedidosAdmin = () => {
         inputLabel: 'Ingresar Descripción',
         inputPlaceholder: 'Ingrese una descripción...',
         inputAttributes: {
+          minLength: 5,
           maxLength: 50,
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return '¡La descripción es obligatoria!';
+          } else if (value.length < 5) {
+            return '¡La descripción debe tener al menos 5 caracteres!';
+          } else if (value.length > 50) {
+            return '¡La descripción no debe tener más de 50 caracteres!';
+          }
         },
         showCancelButton: true,
         preConfirm: (input) => {

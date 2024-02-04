@@ -53,21 +53,24 @@ const VerPedidos = () => {
     const fetchPedidos = async () => {
       try {
         const userId = localStorage.getItem('id');
-
+    
         if (!userId) {
           console.error('ID de usuario no encontrado en el localStorage');
           return;
         }
-
+    
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/order/${userId}`, {
           headers: {
             Authorization: `Bearer ${auth.authToken}`,
           },
           maxRedirects: 0,
         });
+    
         if (response.data && response.data.detail && response.data.detail[0].result) {
-          setPedidos(response.data.detail[0].result);
-          setPedidoStatus(response.data.detail[0].result.length > 0 ? response.data.detail[0].result[0].status : '');
+          const filteredPedidos = response.data.detail[0].result.filter(pedido => pedido.id_orden && pedido.id_producto);
+    
+          setPedidos(filteredPedidos);
+          setPedidoStatus(filteredPedidos.length > 0 ? filteredPedidos[0].status : '');
         } else {
           console.error('La estructura de la respuesta no es la esperada:', response);
         }
@@ -75,7 +78,7 @@ const VerPedidos = () => {
         console.error('Error al obtener los pedidos', error);
       }
     };
-
+    
     
 
 

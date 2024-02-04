@@ -3,6 +3,11 @@ import { Navbar2, Footer2 } from "../../components/usuario/usuario";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
+import { RiBankFill } from "react-icons/ri";
+import { FaUser } from "react-icons/fa";
+import { BiSolidDollarCircle } from "react-icons/bi";
+import { MdNumbers } from "react-icons/md";
+import { MdAlternateEmail } from "react-icons/md";
 import { vaciarCarrito } from "../../redux/action";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -54,7 +59,7 @@ const Checkout = () => {
     cartItems.forEach((item) => {
       totalOrder += item.precio * item.cantidad;
     });
-    return totalOrder;
+    return totalOrder.toFixed(2);
   };
 
   const handleChange = (e, setFieldValue) => {
@@ -322,21 +327,21 @@ const Checkout = () => {
                       </div>
                       <div className="card-body">
       <div className="card">
-        <label htmlFor="">Cuenta</label>
-        <p>
-          <strong>Banco:</strong> Banco Pichincha ahorros
+      <label htmlFor="" style={{ textAlign: "center" }}> <b>Cuenta</b> </label>
+      <p>
+        <strong style={{display:"inline-block", verticalAlign:'bottom', marginLeft:'15px'}}><FaUser size={25} /></strong> Shirley Rivadeneira
         </p>
         <p>
-          <strong>Número de cuenta:</strong> 2209757370
+          <strong style={{display:"inline-block", verticalAlign:'bottom', marginLeft:'15px'}}><MdNumbers size={25} /></strong> 1718299603
         </p>
         <p>
-          <strong>Cédula:</strong> 1718299603
+          <strong style={{display:"inline-block", verticalAlign:'bottom', marginLeft:'15px'}}><MdAlternateEmail size={25} /></strong> shirley.r_mj@hotmail.com
         </p>
         <p>
-          <strong>Nombre:</strong> Shirley Rivadeneira
+        <strong style={{display:"inline-block", verticalAlign:'bottom', marginLeft:'15px'}}><RiBankFill size={25} /></strong> Banco Pichincha (Cuenta de ahorros)
         </p>
         <p>
-          <strong>Email:</strong> shirley.r_mj@hotmail.com
+          <strong style={{display:"inline-block", verticalAlign:'bottom', marginLeft:'15px'}}><BiSolidDollarCircle size={25} /></strong> 2209757370
         </p>
       </div>
     </div>
@@ -383,7 +388,7 @@ const Checkout = () => {
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
                         {item.nombre_producto} ({item.cantidad})
-                        <span>${item.precio * item.cantidad}</span>
+                        <span>${(item.precio * item.cantidad).toFixed(2)}</span>
                       </li>
                     ))}
                        <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
