@@ -89,12 +89,12 @@ const styles = {
   },
   controls: {
     display: 'flex',
-    marginLeft:'1239px', 
+    marginLeft:'auto', 
     alignItems: 'center',
     marginTop: '10px',
   },
   slidersIcon: {
     fontSize: '34px',
-    marginRight: '10px',
+    marginRight: 'auto',
   },
 };

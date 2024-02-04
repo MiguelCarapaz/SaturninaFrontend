@@ -126,18 +126,18 @@ const Products = () => {
     return (
       <>
         <section className="flex flex-row w-full">
-          <section className="flex flex-col  p-3">
-          <div className="flex flex-row items-center justify-center w-full mb-4">
-                <input
-                  type="text"
-                  placeholder="Buscar productos.."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="rounded-lg p-1 bg-gray-100 text-black placeholder:text-black"
-                />
-                <LuSearch className="text-lg ml-2" />
-              </div>
-            <div className="flex flex-row justify-between w-full mb-6">
+          <section className="flex flex-col  p-3 ">
+            <div className="flex flex-row items-center justify-center w-full  mb-4">
+              <input
+                type="text"
+                placeholder="Buscar producto"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="rounded-lg p-1 bg-gray-100 text-black w-10/12 placeholder:text-black"
+              />
+              <LuSearch className="text-lg ml-2" />
+            </div>
+            <div className="flex flex-row justify-between w-50 mb-6">
               <h5 className="w-full md:mr-28 mr-20">Filtros</h5>
               <button onClick={toggleMenu}>
                 {showMenu ? (

@@ -88,39 +88,60 @@ const Cart = () => {
                     <div key={item.id_producto} className="my-4">
                       <div className="row align-items-center">
                         <div className="col-md-4">
-                          {item.imagen && Array.isArray(item.imagen) && item.imagen.length > 0 && (
-                            <div className="image-container">
-                              <img
-                                className="card-img-top p-3 main-image"
-                                src={item.imagen[imageIndexes[index]].secure_url}
-                                alt={`${item.nombre_producto}-${imageIndexes[index]}`}
-                                style={{ height: "250px", width: "200px" }}
-                              />
-                              {item.imagen.length > 1 && (
-                                <div className="thumbnail-container mt-3">
-                                  {item.imagen.map((image, imgIndex) => (
-                                    <img
-                                      key={imgIndex}
-                                      className={`thumbnail ${imgIndex === imageIndexes[index] ? 'selected' : ''}`}
-                                      src={image.secure_url}
-                                      alt={`${item.nombre_producto}-${imgIndex}`}
-                                      onClick={() => handleImageChange(index, imgIndex)}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {item.imagen &&
+                            Array.isArray(item.imagen) &&
+                            item.imagen.length > 0 && (
+                              <div className="image-container">
+                                <img
+                                  className="card-img-top p-3 main-image"
+                                  src={
+                                    item.imagen[imageIndexes[index]].secure_url
+                                  }
+                                  alt={`${item.nombre_producto}-${imageIndexes[index]}`}
+                                  style={{ height: "250px", width: "200px" }}
+                                />
+                                {item.imagen.length > 1 && (
+                                  <div className="thumbnail-container mt-3">
+                                    {item.imagen.map((image, imgIndex) => (
+                                      <img
+                                        key={imgIndex}
+                                        className={`thumbnail ${
+                                          imgIndex === imageIndexes[index]
+                                            ? "selected"
+                                            : ""
+                                        }`}
+                                        src={image.secure_url}
+                                        alt={`${item.nombre_producto}-${imgIndex}`}
+                                        onClick={() =>
+                                          handleImageChange(index, imgIndex)
+                                        }
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                         </div>
                         <div className="col-md-3 position-relative">
                           <button
                             onClick={() => {
                               deleteItem(item);
                             }}
-                            className="position-absolute"
-                            style={{ top: '-20px', right: '-250px', background: "none", border: "none", cursor: "pointer" }}
-                            >
-                            <FaRegTrashAlt style={{position: 'absolute' ,color: 'red', fontSize: '1.5em' }} />
+                            className="absolute left-3/4 md:left-full"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <FaRegTrashAlt
+                              className=" items-end "
+                              style={{
+                                position: "absolute",
+                                color: "red",
+                                fontSize: "1.5em",
+                              }}
+                            />
                           </button>
                           <div>
                             <h4>{item.nombre_producto}</h4>
@@ -136,35 +157,45 @@ const Cart = () => {
                             </div>
                           )}
                           <div>
-                            <b><h4>${(item.precio * item.cantidad).toFixed(2)}</h4></b>
+                            <b>
+                              <h4>
+                                ${(item.precio * item.cantidad).toFixed(2)}
+                              </h4>
+                            </b>
                           </div>
                           <div>
-                              <p>Descripción: {item.descripcion}</p>
-                            </div>
-                        
+                            <p>Descripción: {item.descripcion}</p>
+                          </div>
+
                           <div>
                             <div
-                              className="d-flex"
-                              style={{ borderRadius: "30px", backgroundColor: "#f0f0f0", justifyContent:'center', paddingLeft:'70px', paddingRight:'70px', marginLeft:'300px'}}
-                            >                       
+                              className="flex items-center justify-center"
+                              style={{
+                                borderRadius: "30px",
+                                paddingLeft: "auto",
+                                paddingRight: "auto",
+                              }}
+                            >
                               <button
                                 className="btn"
                                 onClick={() => {
                                   removeItem(item, true);
                                 }}
                                 disabled={item.cantidad === 1}
-                                style={{ fontSize: '1.5em' }}
+                                style={{ fontSize: "1.5em" }}
                               >
                                 <IoRemoveOutline />
                               </button>
-                              <p className="mx-3" style={{ marginTop: '10px' }}>{item.cantidad}</p>
+                              <p className="mx-3" style={{ marginTop: "10px" }}>
+                                {item.cantidad}
+                              </p>
                               <button
                                 className="btn "
                                 onClick={() => {
                                   addItem(item);
                                 }}
                                 disabled={item.cantidad === 10}
-                                style={{ fontSize: '1.5em' }}
+                                style={{ fontSize: "1.5em" }}
                               >
                                 <IoIosAdd />
                               </button>
@@ -180,8 +211,16 @@ const Cart = () => {
               <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                   {[...Array(pagesCount)].map((_, page) => (
-                    <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
-                      <button className="page-link" onClick={() => handleClick(page)}>
+                    <li
+                      key={page}
+                      className={`page-item ${
+                        currentPage === page ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handleClick(page)}
+                      >
                         {page + 1}
                       </button>
                     </li>
@@ -201,16 +240,15 @@ const Cart = () => {
                         key={item.id_producto}
                         className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0"
                       >
-                        {item.nombre_producto} ({item.cantidad})<span>${(item.precio * item.cantidad).toFixed(2)}</span>
+                        {item.nombre_producto} ({item.cantidad})
+                        <span>${(item.precio * item.cantidad).toFixed(2)}</span>
                       </li>
                     ))}
-                      <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                    <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                       <div>
                         <strong>Envió gratis</strong>
                       </div>
-                      <span>
-                        $0
-                      </span>
+                      <span>$0</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                       <div>
@@ -222,15 +260,14 @@ const Cart = () => {
                     </li>
                   </ul>
                   <div className="row d-flex justify-content-center">
-            <Link
-              to="/usuario/checkout"
-              className="btn btn-dark btn-lg btn-block mt-4"  
-              style={{ borderRadius: "30px" }}
-            >
-              Iniciar pago
-            </Link>
-          </div>
-
+                    <Link
+                      to="/usuario/checkout"
+                      className="btn btn-dark btn-lg btn-block mt-4"
+                      style={{ borderRadius: "30px" }}
+                    >
+                      Iniciar pago
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
