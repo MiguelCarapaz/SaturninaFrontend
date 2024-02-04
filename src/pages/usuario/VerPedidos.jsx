@@ -185,7 +185,7 @@ const estadosPedido = ['Pendiente', 'En entrega', 'Rechazado', 'Finalizado'];
               </div>
               <div class="mb-3">
                 <label for="newDireccion" class="form-label">Nueva Dirección:</label>
-                <input type="text" class="form-control" id="newDireccion" name="newDireccion" value="${pedido.id_orden.direccion}">
+                <input type="text" class="form-control" id="newDireccion" name="newDireccion" value="${pedido.id_orden.direccion}" maxlength="40" minlength="10>
               </div>
               <div class="mb-3">
                 <label for="newEmail" class="form-label">Nuevo Correo Electrónico:</label>
