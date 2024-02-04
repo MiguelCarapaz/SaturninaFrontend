@@ -80,7 +80,7 @@ const Register = () => {
         >
           Registrar
         </h2>
-        <section className="m-auto my-3 w-7/12 h-3/5  flex-col items-center justify-center bg-white border-black rounded-md shadow-lg p-5">
+        <div className="m-auto w-full md:w-3/5 h-3/5  flex-col items-center justify-center bg-white border-black rounded-md shadow-lg p-5 mb-5">
           <Formik
             initialValues={{
               nombre: "",
@@ -248,7 +248,7 @@ const Register = () => {
               </Form>
             )}
           </Formik>
-        </section>
+        </div>
       </div>
       <footer className="mt-auto">
         <Footer />
