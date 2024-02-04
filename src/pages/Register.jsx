@@ -60,13 +60,13 @@ const Register = () => {
   };
 
   return (
-    <section className="flex flex-col min-h-screen">
+    <section className="flex flex-col min-h-screen m-auto">
       <header className="sticky top-0 z-50">
         <Navbar />
       </header>
 
       <div
-        className="container"
+        className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-32"
         style={{
           backgroundImage: "url('/assets/recorver.svg')",
           backgroundSize: "cover",
@@ -99,7 +99,7 @@ const Register = () => {
                   <Field
                     type="text"
                     name="nombre"
-                    className="form-control"
+                    className="form-control w-full md:w-3/4 lg:w-2/3"
                     id="nombre"
                     placeholder="Ingresa tus nombres completos"
                     minLength="3"
@@ -121,7 +121,7 @@ const Register = () => {
                   <Field
                     type="text"
                     name="apellido"
-                    className="form-control"
+                    className="form-control w-full md:w-3/4 lg:w-2/3"
                     id="apellido"
                     placeholder="Ingresa tu apellido"
                     minLength="3"
@@ -142,7 +142,7 @@ const Register = () => {
                   <Field
                     type="email"
                     name="email"
-                    className="form-control"
+                    className="form-control w-full md:w-3/4 lg:w-2/3"
                     id="email"
                     placeholder="ejemplo@gmail.com"
                     required
@@ -157,7 +157,7 @@ const Register = () => {
                     <Field
                       type={values.showPassword ? "text" : "password"}
                       name="password"
-                      className="form-control"
+                      className="form-control w-full md:w-3/4 lg:w-2/3"
                       id="password"
                       placeholder="*********"
                       required
@@ -204,7 +204,7 @@ const Register = () => {
                   <Field
                     type="text"
                     name="telefono"
-                    className="form-control"
+                    className="form-control w-full md:w-3/4 lg:w-2/3"
                     id="telefono"
                     placeholder="Ingresa tu teléfono"
                     onChange={(e) => {

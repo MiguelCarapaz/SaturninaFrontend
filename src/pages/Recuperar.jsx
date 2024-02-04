@@ -7,8 +7,7 @@ const Recuperar = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   const getRecoveryTokenFromURL = () => {
-    // Implementa cómo obtener el token de recuperación desde la URL
-    // Aquí, asumiremos que el token está en un parámetro llamado 'token'
+
     const searchParams = new URLSearchParams(window.location.search);
     return searchParams.get('token');
   };

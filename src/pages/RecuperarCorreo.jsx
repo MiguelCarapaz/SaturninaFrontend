@@ -116,12 +116,12 @@ const RecuperarCorreo = () => {
 
   return (
     <>
-    <section className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50">
+     <section className="flex flex-col min-h-screen m-auto">
+     <header className="sticky top-0 z-50">
         <Navbar />
       </header>
-      <main
-        className="h-dvh flex flex-col justify-center items-center"
+      <div
+        className="container mx-auto px-4 md:px-8 lg:px-14 xl:px-32"
         style={{
           backgroundImage: "url('/assets/recorver.svg')",
           backgroundSize: "cover",
@@ -129,20 +129,22 @@ const RecuperarCorreo = () => {
         }}
       >
         <h2
-          className="text-center"
-          style={{ fontFamily: "Gotham, sans-serif" }}
+           className="text-center font-sans mb-24"
+           style={{
+            fontFamily: "Gotham, sans-serif"   
+          }}
         >
           {showChangePassword ? "Cambiar Contraseña" : "Recuperar Cuenta"}
         </h2>
 
-        <div className="m-auto w-2/5 h-3/5 flex flex-col items-center justify-center bg-white border-black rounded-md shadow-lg">
-          <h4 className="tracking-wide leading-relaxed list-inside text-justify pl-10 pr-10">
-            Introduzca su correo electrónico para el proceso de recuperación, le
-            enviaremos un correo electrónico.
-          </h4>
+        <div className="m-auto w-full md:w-2/4 h-3/5 flex flex-col items-center justify-center bg-white border-black rounded-md shadow-lg mb-5">
+        <h4 className="tracking-wide leading-relaxed list-inside text-justify px-4 md:px-10 lg:px-10 max-w-full md:max-w-2xl xl:max-w-3xl overflow-wrap break-word">
+        Introduzca su correo electrónico para el proceso de recuperación, le enviaremos un correo electrónico.
+      </h4>
+
           <div className="w-full">{renderRecoverAccount()}</div>
         </div>
-      </main>
+      </div>
       </section>
       <footer>
         <Footer className="mt-auto"/>
