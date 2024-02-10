@@ -1,19 +1,13 @@
-# SaturninaFrontend
+# SISTEMA WEB DE E-COMMERCE PARA LATIENDA SATURNINA
 
-Este repositorio contiene el código fuente del frontend para el proyecto Saturnina. Saturnina es una aplicación web que permite a los usuarios gestionar sus tareas y proyectos de manera eficiente.
+Este repositorio contiene el código fuente del frontend para Saturnina.
 
-## Descripción del Proyecto
-
-SaturninaFrontend es la interfaz de usuario para la aplicación Saturnina. Proporciona una experiencia amigable y fácil de usar para los usuarios. Algunas de las características clave incluyen:
-
-- Registro e Inicio de Sesión: Los usuarios pueden crear una cuenta o iniciar sesión con sus credenciales.
-- Vista de Tareas y Proyectos: Los usuarios pueden ver sus tareas pendientes, proyectos activos y tareas completadas.
-- Creación y Edición de Tareas: Los usuarios pueden agregar nuevas tareas, editar detalles existentes y marcar tareas como completadas.
-- Gestión de Proyectos: Los usuarios pueden organizar sus tareas en proyectos y asignar fechas de vencimiento.
+## Enlace para el manual de usuario
+https://www.youtube.com/watch?v=TfCpxfe0XMk
 
 ## Pasos para la Implementación
 
-Si deseas ejecutar este frontend en tu máquina local, sigue estos pasos:
+Si deseas ejecutar el frontend en tu máquina local, sigue estos pasos:
 
 1. **Clona el Repositorio:**
    - Abre tu terminal o línea de comandos.
