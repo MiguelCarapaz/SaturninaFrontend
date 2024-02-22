@@ -178,12 +178,20 @@ const Checkout = () => {
           navigate("/usuario/dashboard");
         });
       } else {
+        if (response.status === 406) {
+          Swal.fire({
+              title: 'Error',
+              text: 'Únicamente las extensiones de tipo jpg, jpeg, png y webp están permitidos',
+              icon: 'error',
+          });
+      } else {
         const data = await response.json();
         setStatus({
           error: data.error || "Error al realizar el pedido. Verifica tus datos.",
         });
         setSubmitting(false);
       }
+    }
     } catch (error) {
       console.error("Error en la solicitud de creación del pedido:", error);
       setStatus({

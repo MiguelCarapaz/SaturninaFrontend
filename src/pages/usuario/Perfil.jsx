@@ -131,7 +131,9 @@ const Perfil = () => {
                 icon: 'success',
                 title: 'Éxito',
                 text: 'Datos actualizados con éxito.',
-              });
+              }).then(() => {
+                window.location.reload();
+            });
               setInitialData(perfilData);
             } else {
               if (response.status === 422) {
