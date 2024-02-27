@@ -1,6 +1,11 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaTiktok, FaGooglePlay, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import {
+  FaTiktok,
+  FaGooglePlay,
+  FaInstagram,
+  FaWhatsapp,
+} from "react-icons/fa";
 import { scroller, animateScroll } from "react-scroll";
 
 const Footer = ({ prevPage, nextPage }) => {
@@ -67,23 +72,23 @@ const Footer = ({ prevPage, nextPage }) => {
           <div className="flex flex-col items-center md:mb-0 mb-4">
             <h4 className="mb-2">Redes Sociales</h4>
             <div className="flex flex-row text-4xl my-2 gap-4">
-              <a href="https://www.tiktok.com/@saturnina.uio?_t=8k1MoBRe8QA&_r=1"
+            <a href="https://www.tiktok.com/@saturnina.uio?_t=8k1MoBRe8QA&_r=1"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: 'black' }}>
-                <FaTiktok className="hover:text-blue-500" />
+             <FaTiktok className="hover:text-blue-500" />
               </a>
               <a href="https://www.instagram.com/saturnina.uio/?igshid=NzZhOTFlYzFmZQ%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: 'black' }}>
-                <FaInstagram className="hover:text-fuchsia-500" />
+              <FaInstagram className="hover:text-fuchsia-500" />
               </a>
               <a href=" https://wa.me/+593992708506"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: 'black' }}>
-                <FaWhatsapp className="hover:text-green-500" />
+              <FaWhatsapp className="hover:text-green-500" />
               </a>
             </div>
           </div>
@@ -94,7 +99,7 @@ const Footer = ({ prevPage, nextPage }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: 'black' }}>
-              <FaGooglePlay className="text-3xl hover:text-green-500 mt-2" />
+            <FaGooglePlay className="text-3xl hover:text-green-500 mt-2" />
             </a>
           </div>
         </div>
