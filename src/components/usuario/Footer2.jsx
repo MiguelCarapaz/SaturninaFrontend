@@ -36,7 +36,17 @@ const Footer2 = ({ prevPage, nextPage }) => {
             className="md:mb-0 mb-4"
           />
           <div className="flex flex-col justify-center items-center md:mb-0 mb-4">
-            <h4>Términos y Condiciones</h4>
+            <h4>Información</h4>
+            <p>
+                <a
+                  href="https://drive.google.com/file/d/1E8T0iK42wmV79q_J4a8tTZ7f4MNQMx79/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'black' }}
+                >
+                  Términos y Condiciones
+                </a>
+              </p>
             <NavLink
               to="/dashboard"
               className="no-underline text-black cursor-pointer"
