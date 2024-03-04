@@ -5,6 +5,10 @@ Este repositorio contiene el código fuente del frontend para Saturnina.
 ## Enlace para el manual de usuario
 https://www.youtube.com/watch?v=TfCpxfe0XMk
 
+## Enlace documentación
+
+https://drive.google.com/drive/folders/1qLm27nf7hV_52kIWPNkSO5WOdFmI0Fqn?usp=sharing
+
 ## Pasos para la Implementación
 
 Si deseas ejecutar el frontend en tu máquina local, sigue estos pasos:
